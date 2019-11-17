@@ -3,6 +3,7 @@ $host = "db.ist.utl.pt";
 $user = "ist425108";
 $pass = "skqy1678";
 $name = "ist425108";
+$url = "http://$_SERVER[HTTP_HOST]/";
 
 $conn = new mysqli($host, $user, $pass, $name);
 if (mysqli_connect_errno()) {
@@ -83,8 +84,9 @@ if (mysqli_connect_errno()) {
             echo "New client created successfully";
             if ($conn->query($sql_phone) === TRUE) {
                 echo "New phone created successfully";
-                header('Location: http://$_SERVER[HTTP_HOST]/client.php' . '?VAT=' . $value_VAT);
+                header('Location: ' . $url . 'client.php' . '?VAT=' . $value_VAT);
             } else {
+                $conn->query("DELETE FROM client WHERE VAT=" . $value_VAT);
                 echo "Error: " . $sql_phone . "<br>" . $conn->error;
             }
         } else {
