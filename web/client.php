@@ -13,6 +13,7 @@ if (mysqli_connect_errno()) {
 <html>
 
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
 </head>
 

@@ -3,7 +3,7 @@ $host = "db.ist.utl.pt";
 $user = "ist425108";
 $pass = "skqy1678";
 $name = "ist425108";
-$url = "http://$_SERVER[HTTP_HOST]/";
+$url = "http://$_SERVER[HTTP_HOST]/ist425108/SIBD/";
 
 $conn = new mysqli($host, $user, $pass, $name);
 if (mysqli_connect_errno()) {
@@ -14,6 +14,7 @@ if (mysqli_connect_errno()) {
 <html>
 
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
 </head>
 
@@ -23,7 +24,7 @@ if (mysqli_connect_errno()) {
         <input name="VAT" id="VAT" type="text" placeholder="1234567890" inputmode="numeric" pattern="[0-9]{9,}$" maxlength="10" required="required" oninvalid="setCustomValidity('Invalid VAT')" oninput="setCustomValidity('')"><br>
 
         <br><label for="name">Name</label><br>
-        <input name="name" id="name" type="text" placeholder="João Silva" pattern="[A-z ]+$" maxlength="64" required="required" oninvalid="setCustomValidity('Invalid name')" oninput="setCustomValidity('')"><br>
+        <input name="name" id="name" type="text" placeholder="João Silva" pattern="[A-zÀ-ÿ ]+$" maxlength="64" required="required" oninvalid="setCustomValidity('Invalid name')" oninput="setCustomValidity('')"><br>
 
         <br><label for="birth_date">Date of Birth</label><br>
         <input name="birth_date" id="birth_date" type="date" required="required" min="1900-01-01" max=<?php
@@ -84,7 +85,7 @@ if (mysqli_connect_errno()) {
             echo "New client created successfully";
             if ($conn->query($sql_phone) === TRUE) {
                 echo "New phone created successfully";
-                header('Location: ' . $url . 'client.php' . '?VAT=' . $value_VAT);
+                header('Location: ' . $url . 'client.php?VAT=' . $value_VAT);
             } else {
                 $conn->query("DELETE FROM client WHERE VAT=" . $value_VAT);
                 echo "Error: " . $sql_phone . "<br>" . $conn->error;

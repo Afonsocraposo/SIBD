@@ -3,7 +3,7 @@ $host = "db.ist.utl.pt";
 $user = "ist425108";
 $pass = "skqy1678";
 $name = "ist425108";
-$url = "http://$_SERVER[HTTP_HOST]/";
+$url = "http://$_SERVER[HTTP_HOST]/ist425108/SIBD/";
 
 $conn = new mysqli($host, $user, $pass, $name);
 if (mysqli_connect_errno()) {
@@ -14,6 +14,7 @@ if (mysqli_connect_errno()) {
 <html>
 
 <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>SIBD</title>
 </head>
 
