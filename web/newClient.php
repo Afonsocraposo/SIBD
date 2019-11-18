@@ -1,15 +1,8 @@
 <?php
-$host = "db.ist.utl.pt";
-$user = "ist425108";
-$pass = "skqy1678";
-$name = "ist425108";
-$url = "http://$_SERVER[HTTP_HOST]/ist425108/SIBD/";
+include("database.php");
+$db = new Database();
+$conn = $db->connect();
 
-$conn = new mysqli($host, $user, $pass, $name);
-if (mysqli_connect_errno()) {
-    printf("Connect failed: %s\n", mysqli_connect_error());
-    exit();
-}
 ?>
 <html>
 
@@ -48,7 +41,8 @@ if (mysqli_connect_errno()) {
         <br>
 
         <label for="phone">Phone Number</label><br>
-        <input name="phone" id="phone" type="text" placeholder="(+351)912345678" inputmode="numeric" pattern="[0-9+]{9,}$" maxlength="13" required="required" oninvalid="setCustomValidity('Invalid Phone Number')" oninput="setCustomValidity('')"><br>
+        <input name="phone" id="phone" type="text" placeholder="912345678" inputmode="numeric" pattern="[0-9+]{9,}$" maxlength="9" required="required" oninvalid="setCustomValidity('Invalid Phone Number')" oninput="setCustomValidity('')"><br>
+        <br>
 
         <input type="submit" value="New Client">
     </form>
@@ -85,7 +79,7 @@ if (mysqli_connect_errno()) {
             echo "New client created successfully";
             if ($conn->query($sql_phone) === TRUE) {
                 echo "New phone created successfully";
-                header('Location: ' . $url . 'client.php?VAT=' . $value_VAT);
+                header('Location: ' . $db->url() . 'client.php?VAT=' . $value_VAT);
             } else {
                 $conn->query("DELETE FROM client WHERE VAT=" . $value_VAT);
                 echo "Error: " . $sql_phone . "<br>" . $conn->error;

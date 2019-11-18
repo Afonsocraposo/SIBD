@@ -1,15 +1,7 @@
 <?php
-$host = "db.ist.utl.pt";
-$user = "ist425108";
-$pass = "skqy1678";
-$name = "ist425108";
-$url = "http://$_SERVER[HTTP_HOST]/ist425108/SIBD/";
-
-$conn = new mysqli($host, $user, $pass, $name);
-if (mysqli_connect_errno()) {
-	printf("Connect failed: %s\n", mysqli_connect_error());
-	exit();
-}
+include("database.php");
+$db = new Database();
+$conn = $db->connect();
 ?>
 <html>
 
@@ -68,12 +60,14 @@ if (mysqli_connect_errno()) {
 		echo ("<table border=\"1\">\n");
 		echo ("<tr><td>VAT</td><td>Name</td><td>Birth Date</td><td>Addres</td><td>Gender</td><td>Age</td></tr>\n");
 		while ($results = $raw_results->fetch_array()) {
-			echo "<tr onclick=\" location.href = '" . $url . "client.php?VAT=" . $results['VAT'] . "';\"><td>" . $results['VAT'] . "</td><td>" . $results['name'] . "</td><td>" . $results['birth_date'] . "</td><td>" . $results['street'] . ", " . $results['zip'] . ", " . $results['city'] . "</td><td>" . $results['gender'] . "</td>" . "<td>" . $results['age'] . "</td></tr>\n";
+			echo "<tr onclick=\" location.href = '" . $db->url() . "client.php?VAT=" . $results['VAT'] . "';\"><td>" . $results['VAT'] . "</td><td>" . $results['name'] . "</td><td>" . $results['birth_date'] . "</td><td>" . $results['street'] . ", " . $results['zip'] . ", " . $results['city'] . "</td><td>" . $results['gender'] . "</td>" . "<td>" . $results['age'] . "</td></tr>\n";
 		}
 		echo ("</table>\n");
 	} else {
 		echo "No results";
 	}
+
+
 
 
 	$conn->close();
