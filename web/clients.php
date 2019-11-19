@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$conn = $db->connect();
+$mysqli = $db->connect();
 ?>
 <html>
 
@@ -24,53 +24,54 @@ $conn = $db->connect();
 	</form>
 
 	<?php
-	$value = isset($_GET['search']) ? $conn->real_escape_string(htmlspecialchars($_GET['search'])) : '';
-	$field = $conn->real_escape_string($_GET['search_type']);
+	$field = $_GET['search_type'];
+	$value = $_GET['search'];
 
+	$stmt = $mysqli->stmt_init();
 	if (!empty($value)) {
 
 		switch ($field) {
 			case "VAT":
-				$query = "SELECT * FROM client
-			WHERE (`VAT` LIKE '" . $value . "%')";
+				$stmt->prepare("SELECT * FROM client WHERE (VAT LIKE CONCAT(?,'%'))") or die($mysqli->error);
+				echo $value;
+				$stmt->bind_param('s', $value);
 				break;
 			case "name":
-				$query = "SELECT * FROM client
-			WHERE (`name` LIKE '%" . $value . "%')";
+				$stmt->prepare("SELECT * FROM client WHERE (name LIKE CONCAT('%',?,'%'))") or die($mysqli->error);
+				$stmt->bind_param('s', $value);
 				break;
 			case "address":
-				$query = "SELECT * FROM client
-			WHERE (`street` LIKE '%" . $value . "%') or (`zip` LIKE '" . $value . "%') or (`city` LIKE '%" . $value . "%')";
+				$stmt->prepare("SELECT * FROM client WHERE (street LIKE CONCAT('%',?,'%')) OR (zip LIKE CONCAT(?,'%')) OR (city LIKE CONCAT('%',?,'%'))") or die($mysqli->error);
+				$stmt->bind_param('sss', $value, $value, $value);
 				break;
 			default:
-				$query = "SELECT * FROM client
-			WHERE (`VAT` LIKE '" . $value . "%') OR (`name` LIKE '%" . $value . "%') OR (`street` LIKE '%" . $value . "%') or (`zip` LIKE '" . $value . "%') or (`city` LIKE '%" . $value . "%')";
+				$stmt->prepare("SELECT * FROM client WHERE (VAT LIKE CONCAT(?,'%')) OR (name LIKE CONCAT('%',?,'%')) OR (street LIKE CONCAT('%',?,'%')) OR (zip LIKE CONCAT(?,'%')) OR (city LIKE CONCAT('%',?,'%'))") or die($mysqli->error);
+				$stmt->bind_param('sssss', $value, $value, $value, $value, $value);
 				break;
 		}
 	} else {
-		$query = "SELECT * FROM client
-			WHERE (`VAT` LIKE '" . $value . "%') OR (`name` LIKE '%" . $value . "%') OR (`street` LIKE '%" . $value . "%') or (`zip` LIKE '" . $value . "%') or (`city` LIKE '%" . $value . "%')";
+		$stmt->prepare("SELECT * FROM client") or die($mysqli->error);
 	}
 
-	$raw_results = $conn->query($query) or die(mysqli_query_error());
-
-
-	if ($raw_results && $raw_results->num_rows > 0) {
-
-		echo ("<table border=\"1\">\n");
-		echo ("<tr><td>VAT</td><td>Name</td><td>Birth Date</td><td>Addres</td><td>Gender</td><td>Age</td></tr>\n");
-		while ($results = $raw_results->fetch_array()) {
-			echo "<tr onclick=\" location.href = '" . $db->url() . "client.php?VAT=" . $results['VAT'] . "';\"><td>" . $results['VAT'] . "</td><td>" . $results['name'] . "</td><td>" . $results['birth_date'] . "</td><td>" . $results['street'] . ", " . $results['zip'] . ", " . $results['city'] . "</td><td>" . $results['gender'] . "</td>" . "<td>" . $results['age'] . "</td></tr>\n";
-		}
-		echo ("</table>\n");
+	if (!$stmt->execute()) {
+		print("Something went wrong");
 	} else {
-		echo "No results";
+		$result = $stmt->get_result();
+		if ($result && $result->num_rows > 0) {
+			echo ("<table border=\"1\">\n");
+			echo ("<tr><td>VAT</td><td>Name</td><td>Birth Date</td><td>Addres</td><td>Gender</td><td>Age</td></tr>\n");
+			while ($row = $result->fetch_array()) {
+				echo "<tr onclick=\" location.href = '" . $db->url() . "client.php?VAT=" . $row['VAT'] . "';\"><td>" . $row['VAT'] . "</td><td>" . $row['name'] . "</td><td>" . $row['birth_date'] . "</td><td>" . $row['street'] . ", " . $row['zip'] . ", " . $row['city'] . "</td><td>" . $row['gender'] . "</td>" . "<td>" . $row['age'] . "</td></tr>\n";
+			}
+			echo ("</table>\n");
+		} else {
+			echo "No results";
+		}
 	}
 
 
 
-
-	$conn->close();
+	$mysqli->close();
 	?>
 
 </body>

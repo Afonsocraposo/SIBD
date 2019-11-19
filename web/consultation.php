@@ -1,7 +1,8 @@
 <?php
 include("database.php");
 $db = new Database();
-$conn = $db->connect();
+$mysqli = $db->connect();
+
 ?>
 <html>
 
@@ -12,55 +13,48 @@ $conn = $db->connect();
 
 <body>
     <?php
-    $value_VAT = isset($_GET['VAT']) ? $conn->real_escape_string(htmlspecialchars($_GET['VAT'])) : '';
+    $value_VAT = $_GET['VAT'];
+    $value_timestamp = $_GET['timestamp'];
 
-    if (!empty($value_VAT)) {
-        $query_client = "SELECT * FROM client WHERE VAT=" . $value_VAT;
-        $query_phone = "SELECT * FROM phone_number_client WHERE VAT=" . $value_VAT;
-        $query_appointments_consultations = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=" . $value_VAT;
+    if (!empty($value_VAT) && !empty($value_timestamp)) {
+        $stmt = $mysqli->stmt_init();
+        $query_consultation = "SELECT * FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_doctor=? AND appointment.date_timestamp=?";
 
-        $raw_results_client = $conn->query($query_client) or die(mysqli_query_error());
-        $raw_results_phone = $conn->query($query_phone) or die(mysqli_query_error());
-
-        if ($raw_results_client && $raw_results_client->num_rows > 0) {
-            $results_client = $raw_results_client->fetch_array();
-            $VAT = $results_client['VAT'];
-            $name = $results_client['name'];
-            $birth_date = $results_client['birth_date'];
-            $street = $results_client['street'];
-            $zip = $results_client['zip'];
-            $city = $results_client['city'];
-            $gender = $results_client['gender'];
-            $age = $results_client['age'];
-        }
-
-        if ($raw_results_phone && $raw_results_phone->num_rows > 0) {
-            $results_phone = $raw_results_phone->fetch_array();
-            $phone = $results_phone['phone'];
-        }
-        echo "VAT: " . $VAT . "<br>";
-        echo "Name: " . $name . "<br>";
-        echo "Date of Birth: " . $birth_date . "<br>";
-        echo "Address: " . $street . ", " . $zip . " " . $city . "<br>";
-        echo "Gender: " . $gender . "<br>";
-        echo "Age: " . $age . "<br>";
-        echo "Phone Number: " . $phone . "<br>";
-
-        echo "<br>Appointments:<br><br>";
-        $raw_results = $conn->query($query_appointments_consultations) or die(mysqli_query_error());
-        if ($raw_results && $raw_results->num_rows > 0) {
-            echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Doctor's VAT</td><td>Date Timestamp</td><td>Description</td><td>Consultation</td></tr>\n");
-            while ($results = $raw_results->fetch_array()) {
-                echo "<tr><td>" . $results['VAT_doctor'] . "</td><td>" . $results['date_timestamp'] . "</td><td>" . $results['description'] . "</td><td onclick=\" location.href = '" . $url . "client.php?VAT=" . $value_VAT . "';\">" . ($results['consultation'] == null ? "Missed" : "Details") . "</td></tr>\n";
-            }
-            echo ("</table>\n");
+        $stmt->prepare($query_consultation);
+        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the client data");
         } else {
-            echo "No results";
+            $result_consultation = $stmt->get_result();
         }
+
+        if ($result_consultation && $result_consultation->num_rows > 0) {
+            $consultation = $result_consultation->fetch_array();
+            $SOAP_S = $consultation["SOAP_S"];
+            $SOAP_O = $consultation["SOAP_O"];
+            $SOAP_A = $consultation["SOAP_A"];
+            $SOAP_P = $consultation["SOAP_P"];
+        } else {
+            echo "<script>location.href='" . $db->url() . "clients.php'</script>";
+        }
+
+        echo "Subjective:<br>";
+        echo $SOAP_S;
+        echo "<br><br>";
+        echo "Objective:<br>";
+        echo $SOAP_O;
+        echo "<br><br>";
+        echo "Assessment:<br>";
+        echo $SOAP_A;
+        echo "<br><br>";
+        echo "Plan:<br>";
+        echo $SOAP_P;
+        echo "<br><br>";
+    } else {
+        echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
 
-    $conn->close();
+    $mysqli->close();
     ?>
 
 </body>

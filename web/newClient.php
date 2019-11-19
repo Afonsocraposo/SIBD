@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$conn = $db->connect();
+$mysqli = $db->connect();
 
 ?>
 <html>
@@ -48,48 +48,46 @@ $conn = $db->connect();
     </form>
 
     <?php
-    $value_VAT = isset($_POST['VAT']) ? $conn->real_escape_string(htmlspecialchars($_POST['VAT'])) : '';
-    $value_name = isset($_POST['name']) ? $conn->real_escape_string(htmlspecialchars($_POST['name'])) : '';
-    $value_birth_date = isset($_POST['birth_date']) ? $conn->real_escape_string(htmlspecialchars($_POST['birth_date'])) : '';
-    $value_street = isset($_POST['street']) ? $conn->real_escape_string(htmlspecialchars($_POST['street'])) : '';
-    $value_city = isset($_POST['city']) ? $conn->real_escape_string(htmlspecialchars($_POST['city'])) : '';
-    $value_zip = isset($_POST['zip']) ? $conn->real_escape_string(htmlspecialchars($_POST['zip'])) : '';
+    $value_VAT = $_POST['VAT'];
+    $value_name = $_POST['name'];
+    $value_birth_date = $_POST['birth_date'];
+    $value_street = $_POST['street'];
+    $value_city = $_POST['city'];
+    $value_zip = $_POST['zip'];
     $value_gender = $_POST['gender'];
-    $value_phone = isset($_POST['phone']) ? $conn->real_escape_string(htmlspecialchars($_POST['phone'])) : '';
-
-    echo ($value_VAT);
-    echo ($value_name);
-    echo ($value_birth_date);
-    echo ($value_street);
-    echo ($value_city);
-    echo ($value_zip);
-    echo ($value_gender . "<br>");
-
+    $value_phone = $_POST['phone'];
 
     if (!empty($value_VAT) && !empty($value_name) && !empty($value_birth_date) && !empty($value_street) && !empty($value_city) && !empty($value_zip) && !empty($value_gender)) {
 
 
-        $sql_client = "INSERT INTO client (VAT, name, birth_date, street, city, zip, gender, age)
-        VALUES ('" . $value_VAT . "', '" . $value_name . "', '" . $value_birth_date . "', '" . $value_street . "', '" . $value_city . "', '" . $value_zip . "', '" . $value_gender . "', TIMESTAMPDIFF(YEAR,'" . $value_birth_date . "', CURDATE()))";
+        $query_client = "INSERT INTO client (VAT, name, birth_date, street, city, zip, gender, age)
+        VALUES (?, ?, ?, ?, ?, ?, ?, TIMESTAMPDIFF(YEAR, ? , CURDATE()))";
+        $query_phone = "INSERT INTO phone_number_client (VAT, phone)
+        VALUES (?, ?)";
+        $query_delete = "DELETE FROM client WHERE VAT=?";
 
-        $sql_phone = "INSERT INTO phone_number_client (VAT, phone)
-        VALUES ('" . $value_VAT . "', '" . $value_phone . "')";
+        $stmt = $mysqli->stmt_init();
+        $stmt->prepare($query_client);
+        $stmt->bind_param('ssssssss', $value_VAT, $value_name, $value_birth_date, $value_street, $value_city, $value_zip, $value_gender, $value_birth_date);
 
-        if ($conn->query($sql_client) === TRUE) {
-            echo "New client created successfully";
-            if ($conn->query($sql_phone) === TRUE) {
-                echo "New phone created successfully";
-                header('Location: ' . $db->url() . 'client.php?VAT=' . $value_VAT);
-            } else {
-                $conn->query("DELETE FROM client WHERE VAT=" . $value_VAT);
-                echo "Error: " . $sql_phone . "<br>" . $conn->error;
-            }
+        if (!$stmt->execute()) {
+            print("Something went wrong when creating the client");
         } else {
-            echo "Error: " . $sql_client . "<br>" . $conn->error;
+            echo "New client created successfully<br>";
+            $stmt->prepare($query_phone);
+            $stmt->bind_param('ss', $value_VAT, $value_phone);
+            if (!$stmt->execute()) {
+                $stmt->prepare($query_delete);
+                $stmt->bind_param('s', $value_VAT);
+                echo "Error: Something went wrong.";
+            } else {
+                echo "New phone created successfully<br>";
+                echo "<script>location.href='" . $db->url() . "client.php?VAT=" . $value_VAT . "'</script>";
+            }
         }
     }
 
-    $conn->close();
+    $mysqli->close();
     ?>
 
 </body>

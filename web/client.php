@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$conn = $db->connect();
+$mysqli = $db->connect();
 
 ?>
 <html>
@@ -13,55 +13,87 @@ $conn = $db->connect();
 
 <body>
     <?php
-    $value_VAT = isset($_GET['VAT']) ? $conn->real_escape_string(htmlspecialchars($_GET['VAT'])) : '';
+    $value_VAT = $_GET['VAT'];
 
     if (!empty($value_VAT)) {
-        $query_client = "SELECT * FROM client WHERE VAT=" . $value_VAT;
-        $query_phone = "SELECT * FROM phone_number_client WHERE VAT=" . $value_VAT;
-        $query_appointments_consultations = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=" . $value_VAT;
+        $stmt = $mysqli->stmt_init();
+        $query_client = "SELECT * FROM client WHERE VAT=?";
+        $query_phone = "SELECT * FROM phone_number_client WHERE VAT=?";
+        $query_appointments = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=?";
 
-        $raw_results_client = $conn->query($query_client) or die(mysqli_query_error());
-        $raw_results_phone = $conn->query($query_phone) or die(mysqli_query_error());
-
-        if ($raw_results_client && $raw_results_client->num_rows > 0) {
-            $results_client = $raw_results_client->fetch_array();
-            $VAT = $results_client['VAT'];
-            $name = $results_client['name'];
-            $birth_date = $results_client['birth_date'];
-            $street = $results_client['street'];
-            $zip = $results_client['zip'];
-            $city = $results_client['city'];
-            $gender = $results_client['gender'];
-            $age = $results_client['age'];
+        $stmt->prepare($query_client);
+        $stmt->bind_param('s', $value_VAT);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the client data");
+        } else {
+            $result_client = $stmt->get_result();
         }
 
-        if ($raw_results_phone && $raw_results_phone->num_rows > 0) {
-            $results_phone = $raw_results_phone->fetch_array();
-            $phone = $results_phone['phone'];
+        $stmt->prepare($query_phone);
+        $stmt->bind_param('s', $value_VAT);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the client phone");
+        } else {
+            $result_phone = $stmt->get_result();
         }
+
+        $stmt->prepare($query_appointments);
+        $stmt->bind_param('s', $value_VAT);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the client appointments");
+        } else {
+            $result_appointments = $stmt->get_result();
+        }
+
+        if ($result_client && $result_client->num_rows > 0) {
+            $client = $result_client->fetch_array();
+            $VAT = $client['VAT'];
+            $name = $client['name'];
+            $birth_date = $client['birth_date'];
+            $street = $client['street'];
+            $zip = $client['zip'];
+            $city = $client['city'];
+            $gender = $client['gender'];
+            $age = $client['age'];
+        } else {
+            die();
+        }
+
+        if ($result_phone && $result_phone->num_rows > 0) {
+            $phone = $result_phone->fetch_array();
+            $phone_number = $phone['phone'];
+        } else {
+            die();
+        }
+
         echo "VAT: " . $VAT . "<br>";
         echo "Name: " . $name . "<br>";
         echo "Date of Birth: " . $birth_date . "<br>";
         echo "Address: " . $street . ", " . $zip . " " . $city . "<br>";
         echo "Gender: " . $gender . "<br>";
         echo "Age: " . $age . "<br>";
-        echo "Phone Number: " . $phone . "<br>";
+        echo "Phone Number: " . $phone_number . "<br>";
 
         echo "<br>Appointments:<br><br>";
-        $raw_results = $conn->query($query_appointments_consultations) or die(mysqli_query_error());
-        if ($raw_results && $raw_results->num_rows > 0) {
+        if ($result_appointments && $result_appointments->num_rows > 0) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Doctor's VAT</td><td>Date Timestamp</td><td>Description</td><td>Consultation</td></tr>\n");
-            while ($results = $raw_results->fetch_array()) {
-                echo "<tr><td>" . $results['VAT_doctor'] . "</td><td>" . $results['date_timestamp'] . "</td><td>" . $results['description'] . "</td><td onclick=\" location.href = '" . $url . "client.php?VAT=" . $value_VAT . "';\">" . ($results['consultation'] == null ? "Missed" : "Details") . "</td></tr>\n";
+            echo ("<tr><td>Doctor's VAT</td><td>Date Timestamp</td><td>Description</td><td>Attended</td></tr>\n");
+            while ($appointment = $result_appointments->fetch_array()) {
+                if ($appointment['consultation'] == null) {
+                    echo "<tr><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
+                } else {
+                    echo "<tr onclick=\" location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
+                }
             }
             echo ("</table>\n");
         } else {
             echo "No results";
         }
+    } else {
+        echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
 
-    $conn->close();
+    $mysqli->close();
     ?>
 
 </body>
