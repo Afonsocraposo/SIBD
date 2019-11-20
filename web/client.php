@@ -17,8 +17,7 @@ $mysqli = $db->connect();
 
     if (!empty($value_VAT)) {
         $stmt = $mysqli->stmt_init();
-        $query_client = "SELECT * FROM client WHERE VAT=?";
-        $query_phone = "SELECT * FROM phone_number_client WHERE VAT=?";
+        $query_client = "SELECT * FROM client INNER JOIN phone_number_client ON client.VAT = phone_number_client.VAT WHERE client.VAT=?";
         $query_appointments = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=?";
 
         $stmt->prepare($query_client);
@@ -27,14 +26,6 @@ $mysqli = $db->connect();
             print("Something went wrong when fetching the client data");
         } else {
             $result_client = $stmt->get_result();
-        }
-
-        $stmt->prepare($query_phone);
-        $stmt->bind_param('s', $value_VAT);
-        if (!$stmt->execute()) {
-            print("Something went wrong when fetching the client phone");
-        } else {
-            $result_phone = $stmt->get_result();
         }
 
         $stmt->prepare($query_appointments);
@@ -55,13 +46,7 @@ $mysqli = $db->connect();
             $city = $client['city'];
             $gender = $client['gender'];
             $age = $client['age'];
-        } else {
-            die();
-        }
-
-        if ($result_phone && $result_phone->num_rows > 0) {
-            $phone = $result_phone->fetch_array();
-            $phone_number = $phone['phone'];
+            $phone_number = $client['phone'];
         } else {
             die();
         }
@@ -82,7 +67,7 @@ $mysqli = $db->connect();
                 if ($appointment['consultation'] == null) {
                     echo "<tr><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
                 } else {
-                    echo "<tr onclick=\" location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
+                    echo "<tr onclick=\"location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
                 }
             }
             echo ("</table>\n");
