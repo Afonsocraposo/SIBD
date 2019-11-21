@@ -9,6 +9,7 @@ $dbh = $db->connect();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -19,7 +20,14 @@ $dbh = $db->connect();
 
     if (!empty($value_VAT)) {
         $query_client = "SELECT * FROM client INNER JOIN phone_number_client ON client.VAT = phone_number_client.VAT WHERE client.VAT=?";
-        $query_appointments = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=?";
+        $query_appointments = "SELECT appointment.VAT_doctor, employee.name, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation
+        FROM appointment
+        INNER JOIN employee
+        ON appointment.VAT_doctor=employee.VAT
+        LEFT JOIN consultation
+        ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor)
+        WHERE appointment.VAT_client=?
+        ORDER BY appointment.date_timestamp ASC";
 
         $stmt = $dbh->prepare($query_client);
         $stmt->bindParam(1, $value_VAT);
@@ -68,12 +76,12 @@ $dbh = $db->connect();
         echo "<br>Appointments:<br><br>";
         if ($result_appointments != null) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Doctor's VAT</td><td>Date Timestamp</td><td>Description</td><td>Attended</td></tr>\n");
+            echo ("<tr class='header'><td>Date Timestamp</td><td>Doctor</td><td>Description</td><td>Attended</td></tr>\n");
             foreach ($result_appointments as &$appointment) {
                 if ($appointment['consultation'] == null) {
-                    echo "<tr><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
+                    echo "<tr><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
                 } else {
-                    echo "<tr onclick=\"location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
+                    echo "<tr onclick=\"location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
                 }
             }
             echo ("</table>\n");

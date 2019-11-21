@@ -81,7 +81,7 @@ INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('4444
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('7587186491','Stephana Purvis','1977-12-17 22:28:58','Raven','Qiongshan','1700-115','Female',41);
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('3014867017','Gerianne Fairbank','1992-08-26 15:41:23','Goodland','Saffle','1700-116','Female',27);
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('6037486263','Holt Osipov','1956-01-17 18:21:20','Merchant','Palalang','1700-117','Male',63);
-INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('9261507324','Julieta Weblin','2001-05-19 07:22:35','Blaine','Dubaƒsari','1700-118','Female',18);
+INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('9261507324','Julieta Weblin','2001-05-19 07:22:35','Blaine','Dubafsari','1700-118','Female',18);
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('5819093380','Glenn Brimman','1951-11-18 02:08:07','Carioca','Hecheng','1700-119','Female',67);
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('3054429349','Aylmer Geeson','1994-02-10 07:23:00','Ruskin','Youcheng','1700-120','Male',25);
 INSERT INTO client(VAT,name,birth_date,street,city,zip,gender,age) VALUES ('3333638031','Neilla Cushworth','1967-12-09 04:54:15','Iowa','Zhongshan','1700-121','Female',51);
@@ -281,12 +281,12 @@ INSERT INTO receptionist(VAT) VALUES ('6610312301');
 
 
 /*Populating doctor*/
-INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('3129297397','Dento-maxillofacial radiology','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor.','janes@gmail.com');
+INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('3129297397','Dento-maxillofacial radiology','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor.','janes@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('3360575526','Endodontic','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed lacinia.','mikel@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('7706462800','Oral and maxillofacial surgery','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi arcu.','bend@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('5224001850','Oral medicine','Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sit.','mikeo@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('6579677356','Orthodontic','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nec.','sukm@gmail.com');
-INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('1000911356','Dento-maxillofacial radiology','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas dapibus.','alc@gmail.com');
+INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('1000911356','Dento-maxillofacial radiology','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas dapibus.','alc@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('6860020663','Endodontic','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pellentesque.','seymourb@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('7782456248','Oral and maxillofacial surgery','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sollicitudin.','hughj@gmail.com');
 INSERT INTO doctor(VAT,specialization,biography,email) VALUES ('3601490264','Oral medicine','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec efficitur.','miker@gmail.com');

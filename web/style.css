@@ -1,0 +1,32 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+form { margin-bottom: 0; }
+
+th,
+td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+.center {
+    text-align: center;
+}
+
+tr:hover {
+    background: #e3e3e3;
+}
+
+.header {
+    background: #323232;
+    font-weight:bold;
+    color: #fff;
+    border-bottom: 2px solid #000000;
+}
+
+.header:hover {
+    background: #323232;
+}

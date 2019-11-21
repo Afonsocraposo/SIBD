@@ -9,6 +9,7 @@ $dbh = $db->connect();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>

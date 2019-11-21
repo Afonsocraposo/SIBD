@@ -9,6 +9,7 @@ $dbh = $db->connect();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -28,6 +29,15 @@ $dbh = $db->connect();
     $value_add_dosage = $_POST['add_dosage'];
     $value_add_regime = $_POST['add_regime'];
 
+    $value_rm_medication = $_POST['rm_medication'];
+    $pieces = explode(", ", $value_rm_medication);
+    $value_rm_medication_name = $pieces[0];
+    $value_rm_medication_lab = $pieces[1];
+    $value_rm_medication_ID = $pieces[2];
+
+    $value_add_nurse = $_POST['add_nurse'];
+    $value_rm_nurse = $_POST['rm_nurse'];
+
     $value_save_SOAP_S = $_POST['save_SOAP_S'];
     $value_save_SOAP_O = $_POST['save_SOAP_O'];
     $value_save_SOAP_A = $_POST['save_SOAP_A'];
@@ -40,7 +50,7 @@ $dbh = $db->connect();
     $result_prescription;
     $result_available_prescription;
     $result_procedure;
-
+    $result_available_nurses;
 
 
     if (!empty($value_VAT) && !empty($value_timestamp)) {
@@ -78,7 +88,8 @@ $dbh = $db->connect();
         INNER JOIN diagnostic_code
         ON consultation_diagnostic.ID = diagnostic_code.ID
         WHERE consultation_diagnostic.VAT_doctor = ?
-        AND consultation_diagnostic.date_timestamp = ?";
+        AND consultation_diagnostic.date_timestamp = ?
+        ORDER BY consultation_diagnostic.ID ASC";
 
         $query_rm_diagnostic = "DELETE FROM consultation_diagnostic
         WHERE VAT_doctor = ?
@@ -94,20 +105,49 @@ $dbh = $db->connect();
         SELECT consultation_diagnostic.ID
         FROM consultation_diagnostic
         WHERE consultation_diagnostic.VAT_doctor = ?
-        AND consultation_diagnostic.date_timestamp = ?)";
+        AND consultation_diagnostic.date_timestamp = ?)
+        ORDER BY diagnostic_code.ID ASC";
+
+        $query_rm_prescription = "DELETE FROM prescription
+        WHERE VAT_doctor = ?
+        AND date_timestamp = ?
+        AND ID = ?
+        AND name = ?
+        AND lab = ?";
 
         $query_add_prescription = "INSERT INTO prescription (name, lab, VAT_doctor, date_timestamp, ID, dosage, description)
         VALUES (?, ? , ?, ?, ?, ?, ?)";
 
         $query_available_prescription = "SELECT * 
-        FROM medication";
+        FROM medication
+        ORDER BY name ASC";
+
+        $query_rm_nurse = "DELETE FROM consultation_assistant
+        WHERE VAT_doctor = ?
+        AND date_timestamp = ?
+        AND VAT_nurse = ?";
+
+        $query_add_nurse = "INSERT INTO consultation_assistant (VAT_doctor, date_timestamp, VAT_nurse)
+        VALUES (?, ? , ?)";
 
         $query_nurse = "SELECT *
         FROM consultation_assistant
         INNER JOIN employee
         ON consultation_assistant.VAT_nurse = employee.VAT
         WHERE consultation_assistant.VAT_doctor = ?
-        AND consultation_assistant.date_timestamp = ?";
+        AND consultation_assistant.date_timestamp = ?
+        ORDER BY employee.name ASC";
+
+        $query_available_nurses = "SELECT * 
+        FROM nurse
+        INNER JOIN employee
+        ON nurse.VAT = employee.VAT
+        WHERE nurse.VAT NOT IN (
+        SELECT consultation_assistant.VAT_nurse
+        FROM consultation_assistant
+        WHERE consultation_assistant.VAT_doctor = ?
+        AND consultation_assistant.date_timestamp = ?)
+        ORDER BY employee.name ASC";
 
         $query_prescription = "SELECT *
         FROM prescription
@@ -119,7 +159,8 @@ $dbh = $db->connect();
         INNER JOIN procedure_in_consultation
         ON procedure_.name = procedure_in_consultation.name
         WHERE procedure_in_consultation.VAT_doctor = ?
-        AND procedure_in_consultation.date_timestamp = ?";
+        AND procedure_in_consultation.date_timestamp = ?
+        ORDER BY procedure_.type ASC";
 
         if (!empty($value_save_SOAP_S)) {
             $stmt = $dbh->prepare($query_save_SOAP_S);
@@ -173,6 +214,26 @@ $dbh = $db->connect();
             }
         }
 
+        if (!empty($value_rm_nurse)) {
+            $stmt = $dbh->prepare($query_rm_nurse);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_rm_nurse);
+            if (!$stmt->execute()) {
+                print("Something went wrong when removing nurse");
+            }
+        }
+
+        if (!empty($value_add_nurse)) {
+            $stmt = $dbh->prepare($query_add_nurse);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_add_nurse);
+            if (!$stmt->execute()) {
+                print("Something went wrong when adding nurse");
+            }
+        }
+
         $stmt = $dbh->prepare($query_nurse);
         $stmt->bindParam(1, $value_VAT);
         $stmt->bindParam(2, $value_timestamp);
@@ -181,6 +242,17 @@ $dbh = $db->connect();
         } else {
             if ($stmt->rowCount() > 0) {
                 $result_nurse = $stmt->fetchAll();
+            }
+        }
+
+        $stmt = $dbh->prepare($query_available_nurses);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the available nurses");
+        } else {
+            if ($stmt->rowCount() > 0) {
+                $result_available_nurses = $stmt->fetchAll();
             }
         }
 
@@ -214,6 +286,7 @@ $dbh = $db->connect();
                 $result_diagnostic = $stmt->fetchAll();
             }
         }
+
         $stmt = $dbh->prepare($query_available_diagnostic);
         $stmt->bindParam(1, $value_VAT);
         $stmt->bindParam(2, $value_timestamp);
@@ -222,6 +295,19 @@ $dbh = $db->connect();
         } else {
             if ($stmt->rowCount() > 0) {
                 $result_available_diagnostic = $stmt->fetchAll();
+            }
+        }
+
+        if (!empty($value_rm_medication)) {
+            $stmt = $dbh->prepare($query_rm_prescription);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_rm_medication_ID);
+            $stmt->bindParam(4, $value_rm_medication_name);
+            $stmt->bindParam(5, $value_rm_medication_lab);
+            if (!$stmt->execute()) {
+                print($stmt->error);
+                print("Something went wrong when removing prescription");
             }
         }
 
@@ -321,20 +407,38 @@ $dbh = $db->connect();
         echo "<b>Nurse(s) Assisting:</b><br>";
         if ($result_nurse != null) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Name</td></tr>\n");
+            echo ("<tr class='header'><td>Name</td><td>&#128465;</td></tr>\n");
             foreach ($result_nurse as &$nurse) {
-                echo "<tr onclick=\" location.href = '" . $url . "employee.php?VAT=" . $nurse['VAT'] . "';\"><td>" . $nurse['name'] . "</td></tr>\n";
+                echo "<tr class='row'><td>" . $nurse['name'] . "</td>
+                <td>
+                    <form action='' method='post'>
+                        <button name='rm_nurse' value='" . $nurse['VAT'] . "'>&#10008;</button>
+                    </form>
+                </td>
+                </tr>\n";
             }
             echo ("</table>\n");
         } else {
-            echo "No nurses.";
+            echo "No nurses.<br>";
+        }
+
+        if ($result_available_nurses != null) {
+            echo "<form action='' method='post'>
+            <input type='submit' style='color:green' value='&#10010;'>
+            <input list='nurses' name='add_nurse' autocomplete='off' required>
+            <datalist id='nurses'>";
+            foreach ($result_available_nurses as &$nurse) {
+                echo "<option value=\"" . $nurse['VAT'] . "\">" . $nurse['name'] . "</option>";
+            }
+            echo "</datalist>
+            </form>";
         }
 
         echo "<br>";
         echo "<b>Diagnostic(s):</b><br>";
         if ($result_diagnostic != null) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Diagnostic Code</td><td>Description</td><td>&#128465;</td><td>Medication</td></tr>\n");
+            echo ("<tr class='header'><td>Diagnostic Code</td><td>Description</td><td>&#128465;</td><td>Medication</td></tr>\n");
             foreach ($result_diagnostic as &$diagnostic) {
                 echo "<tr>
                 <td>" . $diagnostic['ID'] . "</td>
@@ -344,14 +448,14 @@ $dbh = $db->connect();
                         <button name='rm_diagnostic' value='" . $diagnostic['ID'] . "'>&#10008;</button>
                     </form>
                 </td>
-                <td>";
-                echo "<button id='" . $diagnostic['ID'] . "' onclick='promptPrescription(\"" . $diagnostic['ID'] . "\")'><span style='color:green'>&#10010;</span></button>
+                <td>
+                <button id='" . $diagnostic['ID'] . "' onclick='promptPrescription(\"" . $diagnostic['ID'] . "\")'><span style='color:green'>&#10010;</span></button>
                 </td>
                 </tr>\n";
             }
             echo ("</table>\n");
         } else {
-            echo "No diagnostic.";
+            echo "No diagnostic.<br>";
         }
 
         if ($result_available_diagnostic != null) {
@@ -370,9 +474,15 @@ $dbh = $db->connect();
         echo "<b>Prescription(s):</b><br>";
         if ($result_prescription != null) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Name</td><td>Lab</td><td>Diagnostic</td><td>Dosage</td><td>Regime</td></tr>\n");
+            echo ("<tr class='header'><td>Name</td><td>Lab</td><td>Diagnostic</td><td>Dosage</td><td>Regime</td><td>&#128465;</td></tr>\n");
             foreach ($result_prescription as &$prescription) {
-                echo "<tr onclick=\" location.href = '" . $url . "medication.php?name=" . $prescription['name'] . "&lab=" . $prescription['lab'] . "';\"><td>" . $prescription['name'] . "</td><td>" . $prescription['lab'] . "</td><td>" . $prescription['ID'] . "</td><td>" . $prescription['dosage'] . "</td><td>" . $prescription['description'] . "</td></tr>\n";
+                echo "<tr><td>" . $prescription['name'] . "</td><td>" . $prescription['lab'] . "</td><td>" . $prescription['ID'] . "</td><td>" . $prescription['dosage'] . "</td><td>" . $prescription['description'] . "</td>
+                <td>
+                    <form action='' method='post'>
+                        <button name='rm_medication' value='" . $prescription['name'] . ", " . $prescription['lab'] . ", " . $prescription['ID'] . "'>&#10008;</button>
+                    </form>
+                </td>
+                </tr>\n";
             }
             echo ("</table>\n");
         } else {
@@ -383,7 +493,7 @@ $dbh = $db->connect();
         echo "<b>Procedure(s):</b><br>";
         if ($result_procedure != null) {
             echo ("<table border=\"1\">\n");
-            echo ("<tr><td>Type</td><td>Name</td><td>Description</td></tr>\n");
+            echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td></tr>\n");
             foreach ($result_procedure as &$procedure) {
                 echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td></tr>\n";
             }
@@ -392,7 +502,7 @@ $dbh = $db->connect();
             echo "No medication.";
         }
     } else {
-        //echo "<script>location.href='" . $db->url() . "clients.php'</script>";
+        echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
 
     $dbh = null;
@@ -403,7 +513,7 @@ $dbh = $db->connect();
             document.getElementById("popupPrescription").style.display = "block";
             var left = window.scrollX + document.getElementById(ID).getBoundingClientRect().left;
             var top = window.scrollY + document.getElementById(ID).getBoundingClientRect().top;
-            document.getElementById("popupPrescription").style.left = left + 30;
+            document.getElementById("popupPrescription").style.left = left - 280;
             document.getElementById("popupPrescription").style.top = top;
             document.getElementById("add_medication_ID").value = ID;
         }
