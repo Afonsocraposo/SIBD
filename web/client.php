@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$mysqli = $db->connect();
+$dbh = $db->connect();
 
 ?>
 <html>
@@ -14,30 +14,35 @@ $mysqli = $db->connect();
 <body>
     <?php
     $value_VAT = $_GET['VAT'];
+    $client;
+    $result_appointments;
 
     if (!empty($value_VAT)) {
-        $stmt = $mysqli->stmt_init();
         $query_client = "SELECT * FROM client INNER JOIN phone_number_client ON client.VAT = phone_number_client.VAT WHERE client.VAT=?";
         $query_appointments = "SELECT appointment.VAT_doctor, appointment.date_timestamp, appointment.description, consultation.date_timestamp as consultation FROM appointment LEFT JOIN consultation ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor) WHERE appointment.VAT_client=?";
 
-        $stmt->prepare($query_client);
-        $stmt->bind_param('s', $value_VAT);
+        $stmt = $dbh->prepare($query_client);
+        $stmt->bindParam(1, $value_VAT);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the client data");
         } else {
-            $result_client = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $client = $stmt->fetch();
+            }
         }
 
-        $stmt->prepare($query_appointments);
-        $stmt->bind_param('s', $value_VAT);
+        $stmt = $dbh->prepare($query_appointments);
+        $stmt->bindParam(1, $value_VAT);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the client appointments");
         } else {
-            $result_appointments = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_appointments = $stmt->fetchAll();
+            }
         }
+        $stmt = null;
 
-        if ($result_client && $result_client->num_rows > 0) {
-            $client = $result_client->fetch_array();
+        if ($client != null) {
             $VAT = $client['VAT'];
             $name = $client['name'];
             $birth_date = $client['birth_date'];
@@ -48,22 +53,23 @@ $mysqli = $db->connect();
             $age = $client['age'];
             $phone_number = $client['phone'];
         } else {
+            echo "<script>location.href='" . $db->url() . "clients.php'</script>";
             die();
         }
 
-        echo "VAT: " . $VAT . "<br>";
-        echo "Name: " . $name . "<br>";
-        echo "Date of Birth: " . $birth_date . "<br>";
-        echo "Address: " . $street . ", " . $zip . " " . $city . "<br>";
-        echo "Gender: " . $gender . "<br>";
-        echo "Age: " . $age . "<br>";
-        echo "Phone Number: " . $phone_number . "<br>";
+        echo "VAT: $VAT<br>";
+        echo "Name: $name<br>";
+        echo "Date of Birth: $birth_date<br>";
+        echo "Address: $street, $zip $city<br>";
+        echo "Gender: $gender<br>";
+        echo "Age: $age<br>";
+        echo "Phone Number: $phone_number<br>";
 
         echo "<br>Appointments:<br><br>";
-        if ($result_appointments && $result_appointments->num_rows > 0) {
+        if ($result_appointments != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr><td>Doctor's VAT</td><td>Date Timestamp</td><td>Description</td><td>Attended</td></tr>\n");
-            while ($appointment = $result_appointments->fetch_array()) {
+            foreach ($result_appointments as &$appointment) {
                 if ($appointment['consultation'] == null) {
                     echo "<tr><td>" . $appointment['VAT_doctor'] . "</td><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
                 } else {
@@ -78,7 +84,7 @@ $mysqli = $db->connect();
         echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
 
-    $mysqli->close();
+    $dbh = null;
     ?>
 
 </body>

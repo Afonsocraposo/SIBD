@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$mysqli = $db->connect();
+$dbh = $db->connect();
 
 ?>
 <html>
@@ -33,10 +33,17 @@ $mysqli = $db->connect();
     $value_save_SOAP_A = $_POST['save_SOAP_A'];
     $value_save_SOAP_P = $_POST['save_SOAP_P'];
 
+    $consultation;
+    $result_nurse;
+    $result_diagnostic;
+    $result_available_diagnostic;
+    $result_prescription;
+    $result_available_prescription;
+    $result_procedure;
+
 
 
     if (!empty($value_VAT) && !empty($value_timestamp)) {
-        $stmt = $mysqli->stmt_init();
 
         $query_save_SOAP_S = "UPDATE consultation
         SET SOAP_S=?
@@ -115,124 +122,164 @@ $mysqli = $db->connect();
         AND procedure_in_consultation.date_timestamp = ?";
 
         if (!empty($value_save_SOAP_S)) {
-            $stmt->prepare($query_save_SOAP_S);
-            $stmt->bind_param('sss', $value_save_SOAP_S, $value_VAT, $value_timestamp);
+            $stmt = $dbh->prepare($query_save_SOAP_S);
+            $stmt->bindParam(1, $value_save_SOAP_S);
+            $stmt->bindParam(2, $value_VAT);
+            $stmt->bindParam(3, $value_timestamp);
             if (!$stmt->execute()) {
                 print("Something went wrong when saving the SOAP\n");
             }
         }
 
         if (!empty($value_save_SOAP_O)) {
-            $stmt->prepare($query_save_SOAP_O);
-            $stmt->bind_param('sss', $value_save_SOAP_O, $value_VAT, $value_timestamp);
+            $stmt = $dbh->prepare($query_save_SOAP_O);
+            $stmt->bindParam(1, $value_save_SOAP_O);
+            $stmt->bindParam(2, $value_VAT);
+            $stmt->bindParam(3, $value_timestamp);
             if (!$stmt->execute()) {
                 print("Something went wrong when saving the SOAP\n");
             }
         }
 
         if (!empty($value_save_SOAP_A)) {
-            $stmt->prepare($query_save_SOAP_A);
-            $stmt->bind_param('sss', $value_save_SOAP_A, $value_VAT, $value_timestamp);
+            $stmt = $dbh->prepare($query_save_SOAP_A);
+            $stmt->bindParam(1, $value_save_SOAP_A);
+            $stmt->bindParam(2, $value_VAT);
+            $stmt->bindParam(3, $value_timestamp);
             if (!$stmt->execute()) {
                 print("Something went wrong when saving the SOAP\n");
             }
         }
 
         if (!empty($value_save_SOAP_P)) {
-            $stmt->prepare($query_save_SOAP_P);
-            $stmt->bind_param('sss', $value_save_SOAP_P, $value_VAT, $value_timestamp);
+            $stmt = $dbh->prepare($query_save_SOAP_P);
+            $stmt->bindParam(1, $value_save_SOAP_P);
+            $stmt->bindParam(2, $value_VAT);
+            $stmt->bindParam(3, $value_timestamp);
             if (!$stmt->execute()) {
                 print("Something went wrong when saving the SOAP\n");
             }
         }
 
-        $stmt->prepare($query_consultation);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+
+        $stmt = $dbh->prepare($query_consultation);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the client data");
         } else {
-            $result_consultation = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $consultation = $stmt->fetch();
+            }
         }
 
-        $stmt->prepare($query_nurse);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        $stmt = $dbh->prepare($query_nurse);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the nurses involved");
         } else {
-            $result_nurse = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_nurse = $stmt->fetchAll();
+            }
         }
 
         if (!empty($value_rm_diagnostic)) {
-            $stmt->prepare($query_rm_diagnostic);
-            $stmt->bind_param('sss', $value_VAT, $value_timestamp, $value_rm_diagnostic);
+            $stmt = $dbh->prepare($query_rm_diagnostic);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_rm_diagnostic);
             if (!$stmt->execute()) {
-                //print($mysqli->error);
+                print("Something went wrong when removing diagnostic");
             }
         }
 
         if (!empty($value_add_diagnostic)) {
-            $stmt->prepare($query_add_diagnostic);
-            $stmt->bind_param('sss', $value_VAT, $value_timestamp, $value_add_diagnostic);
+            $stmt = $dbh->prepare($query_add_diagnostic);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_add_diagnostic);
             if (!$stmt->execute()) {
-                //print($mysqli->error);
+                print("Something went wrong when adding diagnostic");
             }
         }
 
-        $stmt->prepare($query_diagnostic);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        $stmt = $dbh->prepare($query_diagnostic);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the diagnostic codes");
         } else {
-            $result_diagnostic = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_diagnostic = $stmt->fetchAll();
+            }
         }
-
-        $stmt->prepare($query_available_diagnostic);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        $stmt = $dbh->prepare($query_available_diagnostic);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the available diagnostic codes");
         } else {
-            $result_available_diagnostic = $stmt->get_result();
-        }
-
-        if (!empty($value_add_medication_name) && !empty($value_add_medication_lab) && !empty($value_add_dosage) && !empty($value_add_regime)) {
-            $stmt->prepare($query_add_prescription);
-            $stmt->bind_param('sssssss', $value_add_medication_name, $value_add_medication_lab, $value_VAT, $value_timestamp, $value_add_prescription_ID, $value_add_dosage, $value_add_regime);
-            if (!$stmt->execute()) {
-                //print($mysqli->error);
+            if ($stmt->rowCount() > 0) {
+                $result_available_diagnostic = $stmt->fetchAll();
             }
         }
 
-        $stmt->prepare($query_prescription);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        if (!empty($value_add_medication_name) && !empty($value_add_medication_lab) && !empty($value_add_dosage) && !empty($value_add_regime)) {
+            $stmt = $dbh->prepare($query_add_prescription);
+            $stmt->bindParam(1, $value_add_medication_name);
+            $stmt->bindParam(2, $value_add_medication_lab);
+            $stmt->bindParam(3, $value_VAT);
+            $stmt->bindParam(4, $value_timestamp);
+            $stmt->bindParam(5, $value_add_prescription_ID);
+            $stmt->bindParam(6, $value_add_dosage);
+            $stmt->bindParam(7, $value_add_regime);
+            if (!$stmt->execute()) {
+                //print($dbh->error);
+            }
+        }
+
+
+        $stmt = $dbh->prepare($query_prescription);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the prescriptions");
         } else {
-            $result_prescription = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_prescription = $stmt->fetchAll();
+            }
         }
 
-        $stmt->prepare($query_available_prescription);
+        $stmt = $dbh->prepare($query_available_prescription);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the available medication");
         } else {
-            $result_available_prescription = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_available_prescription = $stmt->fetchAll();
+            }
         }
 
+
         echo "<datalist id='medication'>";
-        while ($medication = $result_available_prescription->fetch_array()) {
+        foreach ($result_available_prescription as &$medication) {
             echo "<option value=\"" . $medication['name'] . ", " . $medication['lab'] . "\"></option>";
         }
         echo "</datalist>";
 
-        $stmt->prepare($query_procedure);
-        $stmt->bind_param('ss', $value_VAT, $value_timestamp);
+        $stmt = $dbh->prepare($query_procedure);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching the prescriptions");
         } else {
-            $result_procedure = $stmt->get_result();
+            if ($stmt->rowCount() > 0) {
+                $result_procedure = $stmt->fetchAll();
+            }
         }
 
-        if ($result_consultation && $result_consultation->num_rows > 0) {
-            $consultation = $result_consultation->fetch_array();
+
+        if ($consultation != null) {
             echo "<b>Client Details:</b><br>";
             echo "Name: " . $consultation["name"];
             echo "<br>";
@@ -272,23 +319,23 @@ $mysqli = $db->connect();
 
         echo "<br>";
         echo "<b>Nurse(s) Assisting:</b><br>";
-        if ($result_nurse && $result_nurse->num_rows > 0) {
+        if ($result_nurse != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr><td>Name</td></tr>\n");
-            while ($nurse = $result_nurse->fetch_array()) {
+            foreach ($result_nurse as &$nurse) {
                 echo "<tr onclick=\" location.href = '" . $url . "employee.php?VAT=" . $nurse['VAT'] . "';\"><td>" . $nurse['name'] . "</td></tr>\n";
             }
             echo ("</table>\n");
         } else {
-            echo "No medication.";
+            echo "No nurses.";
         }
 
         echo "<br>";
         echo "<b>Diagnostic(s):</b><br>";
-        if ($result_diagnostic && $result_diagnostic->num_rows > 0) {
+        if ($result_diagnostic != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr><td>Diagnostic Code</td><td>Description</td><td>&#128465;</td><td>Medication</td></tr>\n");
-            while ($diagnostic = $result_diagnostic->fetch_array()) {
+            foreach ($result_diagnostic as &$diagnostic) {
                 echo "<tr>
                 <td>" . $diagnostic['ID'] . "</td>
                 <td>" . $diagnostic['description'] . "</td>
@@ -307,12 +354,12 @@ $mysqli = $db->connect();
             echo "No diagnostic.";
         }
 
-        if ($result_available_diagnostic && $result_available_diagnostic->num_rows > 0) {
+        if ($result_available_diagnostic != null) {
             echo "<form action='' method='post'>
             <input type='submit' style='color:green' value='&#10010;'>
-            <input list='diagnostics' name='add_diagnostic' required>
+            <input list='diagnostics' name='add_diagnostic' autocomplete='off' required>
             <datalist id='diagnostics'>";
-            while ($diagnostic_code = $result_available_diagnostic->fetch_array()) {
+            foreach ($result_available_diagnostic as &$diagnostic_code) {
                 echo "<option value=\"" . $diagnostic_code['ID'] . "\">" . $diagnostic_code['description'] . "</option>";
             }
             echo "</datalist>
@@ -321,10 +368,10 @@ $mysqli = $db->connect();
 
         echo "<br>";
         echo "<b>Prescription(s):</b><br>";
-        if ($result_prescription && $result_prescription->num_rows > 0) {
+        if ($result_prescription != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr><td>Name</td><td>Lab</td><td>Diagnostic</td><td>Dosage</td><td>Regime</td></tr>\n");
-            while ($prescription = $result_prescription->fetch_array()) {
+            foreach ($result_prescription as &$prescription) {
                 echo "<tr onclick=\" location.href = '" . $url . "medication.php?name=" . $prescription['name'] . "&lab=" . $prescription['lab'] . "';\"><td>" . $prescription['name'] . "</td><td>" . $prescription['lab'] . "</td><td>" . $prescription['ID'] . "</td><td>" . $prescription['dosage'] . "</td><td>" . $prescription['description'] . "</td></tr>\n";
             }
             echo ("</table>\n");
@@ -334,10 +381,10 @@ $mysqli = $db->connect();
 
         echo "<br><br>";
         echo "<b>Procedure(s):</b><br>";
-        if ($result_procedure && $result_procedure->num_rows > 0) {
+        if ($result_procedure != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr><td>Type</td><td>Name</td><td>Description</td></tr>\n");
-            while ($procedure = $result_procedure->fetch_array()) {
+            foreach ($result_procedure as &$procedure) {
                 echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td></tr>\n";
             }
             echo ("</table>\n");
@@ -348,7 +395,7 @@ $mysqli = $db->connect();
         //echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
 
-    $mysqli->close();
+    $dbh = null;
     ?>
 
     <script>

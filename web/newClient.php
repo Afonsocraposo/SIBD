@@ -1,7 +1,7 @@
 <?php
 include("database.php");
 $db = new Database();
-$mysqli = $db->connect();
+$dbh = $db->connect();
 
 ?>
 <html>
@@ -66,28 +66,36 @@ $mysqli = $db->connect();
         VALUES (?, ?)";
         $query_delete = "DELETE FROM client WHERE VAT=?";
 
-        $stmt = $mysqli->stmt_init();
-        $stmt->prepare($query_client);
-        $stmt->bind_param('ssssssss', $value_VAT, $value_name, $value_birth_date, $value_street, $value_city, $value_zip, $value_gender, $value_birth_date);
+        $stmt = $dbh->prepare($query_client);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_name);
+        $stmt->bindParam(3, $value_birth_date);
+        $stmt->bindParam(4, $value_street);
+        $stmt->bindParam(5, $value_city);
+        $stmt->bindParam(6, $value_zip);
+        $stmt->bindParam(7, $value_gender);
+        $stmt->bindParam(8, $value_birth_date);
 
         if (!$stmt->execute()) {
             print("Something went wrong when creating the client");
         } else {
             echo "New client created successfully<br>";
-            $stmt->prepare($query_phone);
-            $stmt->bind_param('ss', $value_VAT, $value_phone);
+            $stmt = $dbh->prepare($query_phone);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_phone);
             if (!$stmt->execute()) {
-                $stmt->prepare($query_delete);
-                $stmt->bind_param('s', $value_VAT);
+                $stmt = $dbh->prepare($query_delete);
+                $stmt->bindParam(1, $value_VAT);
+                $stmt->execute();
                 echo "Error: Something went wrong.";
             } else {
                 echo "New phone created successfully<br>";
-                echo "<script>location.href='" . $db->url() . "client.php?VAT=" . $value_VAT . "'</script>";
+                echo "<script>location.href='" . $db->url() . "client.php?VAT=$value_VAT'</script>";
             }
+            $stmt = null;
         }
     }
-
-    $mysqli->close();
+    $dbh = null;
     ?>
 
 </body>

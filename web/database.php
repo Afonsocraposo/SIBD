@@ -4,24 +4,23 @@
 class Database
 {
 
-    private $host = "db.ist.utl.pt";
+    private $host = "db.tecnico.ulisboa.pt";
     private $user = "ist425108";
     private $pass = "skqy1678";
-    private $name = "ist425108";
 
     function __construct()
     {
-        //
+        $this->dsn = "mysql:host=$this->host;dbname=$this->user";
     }
 
     function connect()
     {
-        $conn = new mysqli($this->host, $this->user, $this->pass, $this->name);
-        if (mysqli_connect_errno()) {
-            printf("Connect failed: %s\n", mysqli_connect_error());
-            exit();
+        try {
+            return new PDO($this->dsn, $this->user, $this->pass);
+        } catch (PDOException $e) {
+            echo 'Connection failed: ' . $e->getMessage();
+            return null;
         }
-        return $conn;
     }
 
 
