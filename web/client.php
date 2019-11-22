@@ -36,9 +36,9 @@ $dbh = $db->connect();
 
 <body>
     <?php
-    $value_VAT = $_GET['VAT'] ?? "";
-    $client = "";
-    $result_appointments = "";
+    $value_VAT = $_GET['VAT'] == null ? "" : $_GET['VAT'];
+    $client = null;
+    $result_appointments = null;
 
     if (!empty($value_VAT)) {
         $query_client = "SELECT * FROM client INNER JOIN phone_number_client ON client.VAT = phone_number_client.VAT WHERE client.VAT=?";

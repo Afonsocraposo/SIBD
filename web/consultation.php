@@ -64,25 +64,31 @@ $dbh = $db->connect();
     echo "<button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br>";
 
 
-    $value_VAT = $_GET['VAT'] ?? null;
-    $value_timestamp = $_GET['timestamp'] ?? null;
+    $value_VAT = $_GET['VAT']  == null ? "" : $_GET['VAT'];
+    $value_timestamp = $_GET['timestamp']  == null ? "" : $_GET['timestamp'];
 
-    $value_add_diagnostic = $_POST['add_diagnostic'] ?? null;
-    $value_rm_diagnostic = $_POST['rm_diagnostic'] ?? null;
+    $value_add_diagnostic = $_POST['add_diagnostic']  == null ? "" : $_POST['add_diagnostic'];
+    $value_rm_diagnostic = $_POST['rm_diagnostic']  == null ? "" : $_POST['rm_diagnostic'];
 
-    $value_add_medication = $_POST['add_medication'] ?? null;
-    $pieces = explode(", ", $value_add_medication) ?? null;
-    $value_add_medication_name = $pieces[0] ?? null;
-    $value_add_medication_lab = $pieces[1] ?? null;
-    $value_add_prescription_ID = $_POST['add_medication_ID'] ?? null;
-    $value_add_dosage = $_POST['add_dosage'] ?? null;
-    $value_add_regime = $_POST['add_regime'] ?? null;
+    $value_add_medication = $_POST['add_medication']  == null ? "" : $_POST['add_medication'];
+    if (empty($value_add_medication)) {
+        $value_add_medication_name = "";
+        $value_add_medication_lab = "";
+    } else {
+        $pieces = explode(", ", $value_add_medication);
+        $value_add_medication_name = $pieces[0];
+        $value_add_medication_lab = $pieces[1];
+    }
 
-    $value_rm_medication = $_POST['rm_medication'] ?? null;
-    if ($value_rm_medication == null) {
-        $value_rm_medication_name = null;
-        $value_rm_medication_lab = null;
-        $value_rm_medication_ID = null;
+    $value_add_prescription_ID = $_POST['add_medication_ID']  == null ? "" : $_POST['add_medication_ID'];
+    $value_add_dosage = $_POST['add_dosage']  == null ? "" : $_POST['add_dosage'];
+    $value_add_regime = $_POST['add_regime']  == null ? "" : $_POST['add_regime'];
+
+    $value_rm_medication = $_POST['rm_medication']  == null ? "" : $_POST['rm_medication'];
+    if (empty($value_rm_medication)) {
+        $value_rm_medication_name = "";
+        $value_rm_medication_lab = "";
+        $value_rm_medication_ID = "";
     } else {
         $pieces = explode(", ", $value_rm_medication);
         $value_rm_medication_name = $pieces[0];
@@ -90,15 +96,15 @@ $dbh = $db->connect();
         $value_rm_medication_ID = $pieces[2];
     }
 
-    $value_add_nurse = $_POST['add_nurse'] ?? null;
-    $value_rm_nurse = $_POST['rm_nurse'] ?? null;
+    $value_add_nurse = $_POST['add_nurse']  == null ? "" : $_POST['add_nurse'];
+    $value_rm_nurse = $_POST['rm_nurse']  == null ? "" : $_POST['rm_nurse'];
 
-    $value_save_SOAP_S = $_POST['save_SOAP_S'] ?? null;
-    $value_save_SOAP_O = $_POST['save_SOAP_O'] ?? null;
-    $value_save_SOAP_A = $_POST['save_SOAP_A'] ?? null;
-    $value_save_SOAP_P = $_POST['save_SOAP_P'] ?? null;
+    $value_save_SOAP_S = $_POST['save_SOAP_S']  == null ? "" : $_POST['save_SOAP_S'];
+    $value_save_SOAP_O = $_POST['save_SOAP_O']  == null ? "" : $_POST['save_SOAP_O'];
+    $value_save_SOAP_A = $_POST['save_SOAP_A']  == null ? "" : $_POST['save_SOAP_A'];
+    $value_save_SOAP_P = $_POST['save_SOAP_P']  == null ? "" : $_POST['save_SOAP_P'];
 
-    $consultation;
+    $result_consultation;
     $result_nurse;
     $result_diagnostic;
     $result_available_diagnostic;
@@ -265,7 +271,7 @@ $dbh = $db->connect();
             print("Something went wrong when fetching the client data");
         } else {
             if ($stmt->rowCount() > 0) {
-                $consultation = $stmt->fetch();
+                $result_consultation = $stmt->fetch();
             }
         }
 
@@ -420,27 +426,27 @@ $dbh = $db->connect();
         }
 
 
-        if ($consultation != null) {
+        if ($result_consultation != null) {
 
             echo "<div class='wrapper'>
-            <div class='container' onclick=\"location.href='" . $db->url() . "client.php?VAT=" . $consultation["VAT"] . "'\">
+            <div class='container' onclick=\"location.href='" . $db->url() . "client.php?VAT=" . $result_consultation["VAT"] . "'\">
             <div class='one'>
-            <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/" . $consultation["gender"] . ".png'/>
+            <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/" . $result_consultation["gender"] . ".png'/>
             </div>
             <div class='two' style='text-align:left'>";
 
-            echo "<h1>" . $consultation["name"] . "</h1>";
-            echo "<h4>Gender:</h4> " . $consultation["gender"];
+            echo "<h1>" . $result_consultation["name"] . "</h1>";
+            echo "<h4>Gender:</h4> " . $result_consultation["gender"];
             echo "<br>";
-            echo "<h4>Age:</h4> " . $consultation["age"];
+            echo "<h4>Age:</h4> " . $result_consultation["age"];
 
             echo "</div>
             </div>
             <div class='container'>
             <div class='two' style='text-align: right'>";
 
-            echo "<h1>" . $consultation["drname"] . "</h1>";
-            echo $consultation["specialization"] . " doctor";
+            echo "<h1>" . $result_consultation["drname"] . "</h1>";
+            echo $result_consultation["specialization"] . " doctor";
 
             echo "</div>
             <div class='one'>
@@ -448,9 +454,9 @@ $dbh = $db->connect();
             </div></div></div>";
 
             echo "<br><h1>Consultation Details</h1>";
-            echo "<h4>Date:</h4> " . $consultation["date_timestamp"];
+            echo "<h4>Date:</h4> " . $result_consultation["date_timestamp"];
             echo "<br>";
-            echo "<h4>Description:</h4> " . $consultation["description"];
+            echo "<h4>Description:</h4> " . $result_consultation["description"];
             echo "<br><br><br>";
 
             echo "<form action='' id='save_SOAP' method='post'>
@@ -458,16 +464,16 @@ $dbh = $db->connect();
             <button name='' value='' style='background:#B0C4DE'>&#128190;</button>
             </form>";
             echo "<h4>Subjective</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_S' form='save_SOAP'>" . $consultation["SOAP_S"] . "</textarea><br>";
+            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_S' form='save_SOAP'>" . $result_consultation["SOAP_S"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Objective</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_O' form='save_SOAP'>" . $consultation["SOAP_O"] . "</textarea><br>";
+            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_O' form='save_SOAP'>" . $result_consultation["SOAP_O"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Assessment</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_A' form='save_SOAP'>" . $consultation["SOAP_A"] . "</textarea><br>";
+            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_A' form='save_SOAP'>" . $result_consultation["SOAP_A"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Plan</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_P' form='save_SOAP'>" . $consultation["SOAP_P"] . "</textarea><br>";
+            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_P' form='save_SOAP'>" . $result_consultation["SOAP_P"] . "</textarea><br>";
             echo "<br>";
         } else {
             echo "<script>location.href='" . $db->url() . "clients.php'</script>";

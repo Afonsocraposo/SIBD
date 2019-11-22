@@ -26,8 +26,9 @@ $dbh = $db->connect();
 	</form>
 	<br>
 	<?php
-	$field = $_GET['search_type'] ?? "";
-	$value = $_GET['search'] ?? "";
+
+	$field = $_GET['search_type'] == null ? "" : $_GET['search_type'];
+	$value = $_GET['search'] == null ? "" : $_GET['search'];
 
 	if (!empty($value)) {
 
@@ -75,6 +76,7 @@ $dbh = $db->connect();
 		$stmt = null;
 	}
 	$dbh = null;
+
 	?>
 
 </body>

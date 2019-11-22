@@ -49,14 +49,14 @@ $dbh = $db->connect();
     </form>
 
     <?php
-    $value_VAT = $_POST['VAT'] ?? "";
-    $value_name = $_POST['name'] ?? "";
-    $value_birth_date = $_POST['birth_date'] ?? "";
-    $value_street = $_POST['street'] ?? "";
-    $value_city = $_POST['city'] ?? "";
-    $value_zip = $_POST['zip'] ?? "";
-    $value_gender = $_POST['gender'] ?? "";
-    $value_phone = $_POST['phone'] ?? "";
+    $value_VAT = $_POST['VAT'] == null ? "" : $_POST['VAT'];
+    $value_name = $_POST['name'] == null ? "" : $_POST['name'];
+    $value_birth_date = $_POST['birth_date'] == null ? "" : $_POST['birth_date'];
+    $value_street = $_POST['street'] == null ? "" : $_POST['street'];
+    $value_city = $_POST['city'] == null ? "" : $_POST['city'];
+    $value_zip = $_POST['zip'] == null ? "" : $_POST['zip'];
+    $value_gender = $_POST['gender'] == null ? "" : $_POST['gender'];
+    $value_phone = $_POST['phone'] == null ? "" : $_POST['phone'];
 
     if (!empty($value_VAT) && !empty($value_name) && !empty($value_birth_date) && !empty($value_street) && !empty($value_city) && !empty($value_zip) && !empty($value_gender)) {
 
