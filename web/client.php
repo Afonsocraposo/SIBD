@@ -36,9 +36,9 @@ $dbh = $db->connect();
 
 <body>
     <?php
-    $value_VAT = $_GET['VAT'];
-    $client;
-    $result_appointments;
+    $value_VAT = $_GET['VAT'] ?? "";
+    $client = "";
+    $result_appointments = "";
 
     if (!empty($value_VAT)) {
         $query_client = "SELECT * FROM client INNER JOIN phone_number_client ON client.VAT = phone_number_client.VAT WHERE client.VAT=?";
@@ -105,15 +105,15 @@ $dbh = $db->connect();
         <div style='width:100%'>";
 
 
-        echo "<br><h2>Appointments:<h2>";
-        if ($result_appointments != null) {
-            echo ("<table border=\"1\">\n");
+        echo "<br><h2>Appointments:</h2>";
+        if (!empty($result_appointments)) {
+            echo ("<table>\n");
             echo ("<tr class='header'><td>Date Timestamp</td><td>Doctor</td><td>Description</td><td>Attended</td></tr>\n");
             foreach ($result_appointments as &$appointment) {
                 if ($appointment['consultation'] == null) {
                     echo "<tr><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
                 } else {
-                    echo "<tr onclick=\"location.href = '" . $url . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
+                    echo "<tr onclick=\"location.href = '" . $db->url() . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
                 }
             }
             echo ("</table>\n");

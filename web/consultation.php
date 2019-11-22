@@ -64,33 +64,39 @@ $dbh = $db->connect();
     echo "<button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br>";
 
 
-    $value_VAT = $_GET['VAT'];
-    $value_timestamp = $_GET['timestamp'];
+    $value_VAT = $_GET['VAT'] ?? null;
+    $value_timestamp = $_GET['timestamp'] ?? null;
 
-    $value_add_diagnostic = $_POST['add_diagnostic'];
-    $value_rm_diagnostic = $_POST['rm_diagnostic'];
+    $value_add_diagnostic = $_POST['add_diagnostic'] ?? null;
+    $value_rm_diagnostic = $_POST['rm_diagnostic'] ?? null;
 
-    $value_add_medication = $_POST['add_medication'];
-    $pieces = explode(", ", $value_add_medication);
-    $value_add_medication_name = $pieces[0];
-    $value_add_medication_lab = $pieces[1];
-    $value_add_prescription_ID = $_POST['add_medication_ID'];
-    $value_add_dosage = $_POST['add_dosage'];
-    $value_add_regime = $_POST['add_regime'];
+    $value_add_medication = $_POST['add_medication'] ?? null;
+    $pieces = explode(", ", $value_add_medication) ?? null;
+    $value_add_medication_name = $pieces[0] ?? null;
+    $value_add_medication_lab = $pieces[1] ?? null;
+    $value_add_prescription_ID = $_POST['add_medication_ID'] ?? null;
+    $value_add_dosage = $_POST['add_dosage'] ?? null;
+    $value_add_regime = $_POST['add_regime'] ?? null;
 
-    $value_rm_medication = $_POST['rm_medication'];
-    $pieces = explode(", ", $value_rm_medication);
-    $value_rm_medication_name = $pieces[0];
-    $value_rm_medication_lab = $pieces[1];
-    $value_rm_medication_ID = $pieces[2];
+    $value_rm_medication = $_POST['rm_medication'] ?? null;
+    if ($value_rm_medication == null) {
+        $value_rm_medication_name = null;
+        $value_rm_medication_lab = null;
+        $value_rm_medication_ID = null;
+    } else {
+        $pieces = explode(", ", $value_rm_medication);
+        $value_rm_medication_name = $pieces[0];
+        $value_rm_medication_lab = $pieces[1];
+        $value_rm_medication_ID = $pieces[2];
+    }
 
-    $value_add_nurse = $_POST['add_nurse'];
-    $value_rm_nurse = $_POST['rm_nurse'];
+    $value_add_nurse = $_POST['add_nurse'] ?? null;
+    $value_rm_nurse = $_POST['rm_nurse'] ?? null;
 
-    $value_save_SOAP_S = $_POST['save_SOAP_S'];
-    $value_save_SOAP_O = $_POST['save_SOAP_O'];
-    $value_save_SOAP_A = $_POST['save_SOAP_A'];
-    $value_save_SOAP_P = $_POST['save_SOAP_P'];
+    $value_save_SOAP_S = $_POST['save_SOAP_S'] ?? null;
+    $value_save_SOAP_O = $_POST['save_SOAP_O'] ?? null;
+    $value_save_SOAP_A = $_POST['save_SOAP_A'] ?? null;
+    $value_save_SOAP_P = $_POST['save_SOAP_P'] ?? null;
 
     $consultation;
     $result_nurse;
@@ -445,7 +451,7 @@ $dbh = $db->connect();
             echo "<h4>Date:</h4> " . $consultation["date_timestamp"];
             echo "<br>";
             echo "<h4>Description:</h4> " . $consultation["description"];
-            echo "<br><br>";
+            echo "<br><br><br>";
 
             echo "<form action='' id='save_SOAP' method='post'>
             <h3>Consultation Notes </h3>
@@ -470,7 +476,7 @@ $dbh = $db->connect();
         echo "<br>";
         echo "<h3>Nurse(s) Assisting</h3><br><br>";
         if ($result_nurse != null) {
-            echo ("<table border=\"1\">\n");
+            echo ("<table>\n");
             echo ("<tr class='header'><td>Name</td><td>&#128465;</td></tr>\n");
             foreach ($result_nurse as &$nurse) {
                 echo "<tr class='row'><td>" . $nurse['name'] . "</td>
@@ -499,7 +505,7 @@ $dbh = $db->connect();
 
         echo "<br><br><h3>Diagnostic(s)</h3><br><br>";
         if ($result_diagnostic != null) {
-            echo ("<table border=\"1\">\n");
+            echo ("<table>\n");
             echo ("<tr class='header'><td>Diagnostic Code</td><td>Description</td><td>&#128465;</td><td>Medication</td></tr>\n");
             foreach ($result_diagnostic as &$diagnostic) {
                 echo "<tr>
@@ -534,13 +540,13 @@ $dbh = $db->connect();
 
         echo "<br><br><h3>Prescription(s)</h3><br><br>";
         if ($result_prescription != null) {
-            echo ("<table border=\"1\">\n");
+            echo ("<table>\n");
             echo ("<tr class='header'><td>Name</td><td>Lab</td><td>Diagnostic</td><td>Dosage</td><td>Regime</td><td>&#128465;</td></tr>\n");
             foreach ($result_prescription as &$prescription) {
                 echo "<tr><td>" . $prescription['name'] . "</td><td>" . $prescription['lab'] . "</td><td>" . $prescription['ID'] . "</td><td>" . $prescription['dosage'] . "</td><td>" . $prescription['description'] . "</td>
                 <td>
                     <form action='' method='post'>
-                        <button name='rm_medication' value='" . $prescription['name'] . ", " . $prescription['lab'] . ", " . $prescription['ID'] . "' style='color:red' style='background:red; color:white'>&#10008;</button>
+                        <button name='rm_medication' value='" . $prescription['name'] . ", " . $prescription['lab'] . ", " . $prescription['ID'] . "' style='background:red; color:white'>&#10008;</button>
                     </form>
                 </td>
                 </tr>\n";
@@ -552,7 +558,7 @@ $dbh = $db->connect();
 
         echo "<br><br><h3>Procedure(s)</h3><br><br>";
         if ($result_procedure != null) {
-            echo ("<table border=\"1\">\n");
+            echo ("<table>\n");
             echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td></tr>\n");
             foreach ($result_procedure as &$procedure) {
                 echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td></tr>\n";

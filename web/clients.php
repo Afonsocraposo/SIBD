@@ -26,8 +26,8 @@ $dbh = $db->connect();
 	</form>
 	<br>
 	<?php
-	$field = $_GET['search_type'];
-	$value = $_GET['search'];
+	$field = $_GET['search_type'] ?? "";
+	$value = $_GET['search'] ?? "";
 
 	if (!empty($value)) {
 
@@ -63,7 +63,7 @@ $dbh = $db->connect();
 		print("Something went wrong");
 	} else {
 		if ($stmt->rowCount() > 0) {
-			echo ("<table border=\"1\">\n");
+			echo ("<table>");
 			echo ("<tr class='header'><td>VAT</td><td>Name</td><td>Addres</td><td>Birth Date</td></tr>\n");
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				echo "<tr onclick=\" location.href = '" . $db->url() . "client.php?VAT=" . $row['VAT'] . "';\"><td>" . $row['VAT'] . "</td><td>" . $row['name'] . "</td><td>" . $row['street'] . ", " . $row['zip'] . ", " . $row['city'] . "</td><td>" . $row['birth_date'] . "</td></tr>\n";

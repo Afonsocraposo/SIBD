@@ -26,7 +26,7 @@ class Database
 
     function url()
     {
-        //"http://$_SERVER[HTTP_HOST]/ist425108/SIBD/";
+        //"http://$_SERVER[HTTP_HOST]/$user/SIBD/";
         return "http://$_SERVER[HTTP_HOST]/";
     }
 };
