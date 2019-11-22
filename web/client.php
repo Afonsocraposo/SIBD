@@ -10,6 +10,28 @@ $dbh = $db->connect();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            widht: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            width: 15vw;
+            height: 15vw;
+        }
+
+        .one {
+            flex: 0 0 20vw;
+            text-align: center;
+        }
+
+        .two {
+            flex: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -27,7 +49,7 @@ $dbh = $db->connect();
         LEFT JOIN consultation
         ON (appointment.date_timestamp = consultation.date_timestamp AND appointment.VAT_doctor = consultation.VAT_doctor)
         WHERE appointment.VAT_client=?
-        ORDER BY appointment.date_timestamp ASC";
+        ORDER BY appointment.date_timestamp DESC";
 
         $stmt = $dbh->prepare($query_client);
         $stmt->bindParam(1, $value_VAT);
@@ -65,15 +87,25 @@ $dbh = $db->connect();
             die();
         }
 
-        echo "VAT: $VAT<br>";
-        echo "Name: $name<br>";
-        echo "Date of Birth: $birth_date<br>";
-        echo "Address: $street, $zip $city<br>";
-        echo "Gender: $gender<br>";
-        echo "Age: $age<br>";
-        echo "Phone Number: $phone_number<br>";
 
-        echo "<br>Appointments:<br><br>";
+        echo "<div class='container'><div class='one'>
+        <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/$gender.png'/>";
+
+
+        echo "</div><div class='two'>";
+        echo "<h1>$name</h1>";
+        echo "<h4>Address:</h4> $street, $zip $city<br>";
+        echo "<h4>Age:</h4> $age<br>";
+        echo "<h4>Gender:</h4> $gender<br>";
+        echo "<h4>Date of Birth:</h4> $birth_date<br>";
+        echo "<h4>Phone Number:</h4> $phone_number<br>";
+        echo "<h4>VAT:</h4> $VAT<br>";
+
+        echo "</div></div>
+        <div style='width:100%'>";
+
+
+        echo "<br><h2>Appointments:<h2>";
         if ($result_appointments != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr class='header'><td>Date Timestamp</td><td>Doctor</td><td>Description</td><td>Attended</td></tr>\n");
@@ -91,6 +123,8 @@ $dbh = $db->connect();
     } else {
         echo "<script>location.href='" . $db->url() . "clients.php'</script>";
     }
+
+    echo "</div>";
 
     $dbh = null;
     ?>

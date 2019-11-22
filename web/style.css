@@ -1,5 +1,31 @@
+* {
+    font-family: 'Avenir', 'Arial', sans-serif;
+    font-size: large;
+}
+
+h1 {
+    font-size: xx-large;
+}
+
+h2 {
+    font-size: x-large;
+}
+
+h3 {
+    font-size: larger;
+    display: inline;
+}
+
+h4 {
+    display: inline;
+}
+
 table {
     border-collapse: collapse;
+    width: 100%;
+}
+
+textarea {
     width: 100%;
 }
 

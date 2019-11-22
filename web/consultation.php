@@ -10,10 +10,59 @@ $dbh = $db->connect();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 0 0 50vw;
+        }
+
+        img {
+            width: 15vw;
+            height: 15vw;
+        }
+
+        .one {
+            flex: 0 0 20vw;
+            text-align: center;
+        }
+
+        .two {
+            flex: 1;
+        }
+
+        body {
+            text-align: center;
+        }
+
+        #popupPrescription {
+            text-align: right;
+            width: 310px;
+            top: 0;
+            padding: 15px;
+            display: none;
+            position: absolute;
+            background-color: white;
+            border-style: solid;
+            border-width: 1px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
+    </style>
 </head>
 
 <body>
+
     <?php
+
+    echo "<button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br>";
+
 
     $value_VAT = $_GET['VAT'];
     $value_timestamp = $_GET['timestamp'];
@@ -71,7 +120,7 @@ $dbh = $db->connect();
         SET SOAP_P=?
         WHERE VAT_doctor=? AND date_timestamp=?";
 
-        $query_consultation = "SELECT client.name, client.gender, client.age, employee.name as drname, doctor.specialization, appointment.description, consultation.* 
+        $query_consultation = "SELECT client.name, client.VAT, client.gender, client.age, employee.name as drname, doctor.specialization, appointment.description, consultation.* 
         FROM client 
         INNER JOIN appointment 
         ON client.VAT = appointment.VAT_client 
@@ -366,37 +415,52 @@ $dbh = $db->connect();
 
 
         if ($consultation != null) {
-            echo "<b>Client Details:</b><br>";
-            echo "Name: " . $consultation["name"];
+
+            echo "<div class='wrapper'>
+            <div class='container' onclick=\"location.href='" . $db->url() . "client.php?VAT=" . $consultation["VAT"] . "'\">
+            <div class='one'>
+            <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/" . $consultation["gender"] . ".png'/>
+            </div>
+            <div class='two' style='text-align:left'>";
+
+            echo "<h1>" . $consultation["name"] . "</h1>";
+            echo "<h4>Gender:</h4> " . $consultation["gender"];
             echo "<br>";
-            echo "Gender: " . $consultation["gender"];
+            echo "<h4>Age:</h4> " . $consultation["age"];
+
+            echo "</div>
+            </div>
+            <div class='container'>
+            <div class='two' style='text-align: right'>";
+
+            echo "<h1>" . $consultation["drname"] . "</h1>";
+            echo $consultation["specialization"] . " doctor";
+
+            echo "</div>
+            <div class='one'>
+            <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/doctor.png'/>
+            </div></div></div>";
+
+            echo "<br><h1>Consultation Details</h1>";
+            echo "<h4>Date:</h4> " . $consultation["date_timestamp"];
             echo "<br>";
-            echo "Age: " . $consultation["age"];
-            echo "<br><br>";
-            echo "<b>Doctor Details:</b><br>";
-            echo "Name: " . $consultation["drname"];
-            echo "<br>";
-            echo "Specialization: " . $consultation["specialization"];
-            echo "<br><br>";
-            echo "<b>Appointment Details:</b><br>";
-            echo "Date: " . $consultation["date_timestamp"];
-            echo "<br>";
-            echo "Description: " . $consultation["description"];
+            echo "<h4>Description:</h4> " . $consultation["description"];
             echo "<br><br>";
 
             echo "<form action='' id='save_SOAP' method='post'>
-            <b>Consultation Notes:</b> <input type='submit' value='&#128190;' method='post'>
+            <h3>Consultation Notes </h3>
+            <button name='' value='' style='background:#B0C4DE'>&#128190;</button>
             </form>";
-            echo "Subjective:<br>";
+            echo "<h4>Subjective</h4><br>";
             echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_S' form='save_SOAP'>" . $consultation["SOAP_S"] . "</textarea><br>";
             echo "<br>";
-            echo "Objective:<br>";
+            echo "<h4>Objective</h4><br>";
             echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_O' form='save_SOAP'>" . $consultation["SOAP_O"] . "</textarea><br>";
             echo "<br>";
-            echo "Assessment:<br>";
+            echo "<h4>Assessment</h4><br>";
             echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_A' form='save_SOAP'>" . $consultation["SOAP_A"] . "</textarea><br>";
             echo "<br>";
-            echo "Plan:<br>";
+            echo "<h4>Plan</h4><br>";
             echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_P' form='save_SOAP'>" . $consultation["SOAP_P"] . "</textarea><br>";
             echo "<br>";
         } else {
@@ -404,7 +468,7 @@ $dbh = $db->connect();
         }
 
         echo "<br>";
-        echo "<b>Nurse(s) Assisting:</b><br>";
+        echo "<h3>Nurse(s) Assisting</h3><br><br>";
         if ($result_nurse != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr class='header'><td>Name</td><td>&#128465;</td></tr>\n");
@@ -412,7 +476,7 @@ $dbh = $db->connect();
                 echo "<tr class='row'><td>" . $nurse['name'] . "</td>
                 <td>
                     <form action='' method='post'>
-                        <button name='rm_nurse' value='" . $nurse['VAT'] . "'>&#10008;</button>
+                        <button name='rm_nurse' value='" . $nurse['VAT'] . "' style='background:red; color:white'>&#10008;</button>
                     </form>
                 </td>
                 </tr>\n";
@@ -421,21 +485,19 @@ $dbh = $db->connect();
         } else {
             echo "No nurses.<br>";
         }
-
         if ($result_available_nurses != null) {
-            echo "<form action='' method='post'>
-            <input type='submit' style='color:green' value='&#10010;'>
+            echo "<br><form action='' method='post'>
             <input list='nurses' name='add_nurse' autocomplete='off' required>
             <datalist id='nurses'>";
             foreach ($result_available_nurses as &$nurse) {
                 echo "<option value=\"" . $nurse['VAT'] . "\">" . $nurse['name'] . "</option>";
             }
             echo "</datalist>
+            <button name='' value='' style='background:green; color:white'>&#10010;</button>
             </form>";
         }
 
-        echo "<br>";
-        echo "<b>Diagnostic(s):</b><br>";
+        echo "<br><br><h3>Diagnostic(s)</h3><br><br>";
         if ($result_diagnostic != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr class='header'><td>Diagnostic Code</td><td>Description</td><td>&#128465;</td><td>Medication</td></tr>\n");
@@ -445,11 +507,11 @@ $dbh = $db->connect();
                 <td>" . $diagnostic['description'] . "</td>
                 <td>
                     <form action='' method='post'>
-                        <button name='rm_diagnostic' value='" . $diagnostic['ID'] . "'>&#10008;</button>
+                        <button name='rm_diagnostic' value='" . $diagnostic['ID'] . "' style='background:red; color:white'>&#10008;</button>
                     </form>
                 </td>
                 <td>
-                <button id='" . $diagnostic['ID'] . "' onclick='promptPrescription(\"" . $diagnostic['ID'] . "\")'><span style='color:green'>&#10010;</span></button>
+                <button id='" . $diagnostic['ID'] . "' onclick='promptPrescription(\"" . $diagnostic['ID'] . "\")' style='background:green; color:white'>&#10010;</button>
                 </td>
                 </tr>\n";
             }
@@ -459,19 +521,18 @@ $dbh = $db->connect();
         }
 
         if ($result_available_diagnostic != null) {
-            echo "<form action='' method='post'>
-            <input type='submit' style='color:green' value='&#10010;'>
+            echo "<br><form action='' method='post'>
             <input list='diagnostics' name='add_diagnostic' autocomplete='off' required>
             <datalist id='diagnostics'>";
             foreach ($result_available_diagnostic as &$diagnostic_code) {
                 echo "<option value=\"" . $diagnostic_code['ID'] . "\">" . $diagnostic_code['description'] . "</option>";
             }
             echo "</datalist>
+            <button name='' value='' style='background:green; color:white'>&#10010;</button>
             </form>";
         }
 
-        echo "<br>";
-        echo "<b>Prescription(s):</b><br>";
+        echo "<br><br><h3>Prescription(s)</h3><br><br>";
         if ($result_prescription != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr class='header'><td>Name</td><td>Lab</td><td>Diagnostic</td><td>Dosage</td><td>Regime</td><td>&#128465;</td></tr>\n");
@@ -479,7 +540,7 @@ $dbh = $db->connect();
                 echo "<tr><td>" . $prescription['name'] . "</td><td>" . $prescription['lab'] . "</td><td>" . $prescription['ID'] . "</td><td>" . $prescription['dosage'] . "</td><td>" . $prescription['description'] . "</td>
                 <td>
                     <form action='' method='post'>
-                        <button name='rm_medication' value='" . $prescription['name'] . ", " . $prescription['lab'] . ", " . $prescription['ID'] . "'>&#10008;</button>
+                        <button name='rm_medication' value='" . $prescription['name'] . ", " . $prescription['lab'] . ", " . $prescription['ID'] . "' style='color:red' style='background:red; color:white'>&#10008;</button>
                     </form>
                 </td>
                 </tr>\n";
@@ -489,8 +550,7 @@ $dbh = $db->connect();
             echo "No medication.";
         }
 
-        echo "<br><br>";
-        echo "<b>Procedure(s):</b><br>";
+        echo "<br><br><h3>Procedure(s)</h3><br><br>";
         if ($result_procedure != null) {
             echo ("<table border=\"1\">\n");
             echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td></tr>\n");
@@ -519,19 +579,23 @@ $dbh = $db->connect();
         }
     </script>
 
-    <div id="popupPrescription" style="width:240px; top:0; padding:15px; padding-bottom:0; display:none; position:absolute; background-color:white; border-style: solid; border-width: 1px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
-        <div style="float:right"><button onclick="document.getElementById('popupPrescription').style.display = 'none';">X</button></div><br>
-        <form action='' method='post'>
-            <input type="text" name="add_medication_ID" id="add_medication_ID" style="display:none">
-            <label for="add_medication">Medication: </label>
-            <input list='medication' name='add_medication' id='add_medication' required style="width:125px"><br>
-            <label for="dosage">Dosage: </label>
-            <input name="add_dosage" id="dosage" type="text" placeholder="e.g. 1000 mg" maxlength="32" required oninvalid="setCustomValidity('Invalid Dosage')" oninput="setCustomValidity('')" style="width:150px"><br>
-            <label for="regime">Regime: </label>
-            <input name="add_regime" id="regime" type="text" placeholder="e.g. 1 pill every day" maxlength="64" required oninvalid="setCustomValidity('Invalid Regime')" oninput="setCustomValidity('')" style="width:148px"><br>
-            <br>
-            <input type='submit'>
-        </form>
+    <div id="popupPrescription">
+        <div style="float:right"><button onclick="document.getElementById('popupPrescription').style.display = 'none';">X</button></div><br><br>
+        <div>
+            <form action='' method='post'>
+                <input type="text" name="add_medication_ID" id="add_medication_ID" style="display:none">
+                <label for="add_medication">Medication: </label>
+                <input list='medication' name='add_medication' id='add_medication' required style="width:200px"><br>
+                <label for="dosage">Dosage: </label>
+                <input name="add_dosage" id="dosage" type="text" placeholder="e.g. 1000 mg" maxlength="32" required oninvalid="setCustomValidity('Invalid Dosage')" oninput="setCustomValidity('')" style="width:200px"><br>
+                <label for="regime">Regime: </label>
+                <input name="add_regime" id="regime" type="text" placeholder="e.g. 1 pill every day" maxlength="64" required oninvalid="setCustomValidity('Invalid Regime')" oninput="setCustomValidity('')" style="width:200px"><br>
+                <br>
+                <div style="width: 100%; text-align: center">
+                    <button name='' value=''>SUBMIT</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </body>

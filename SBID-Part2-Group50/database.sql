@@ -222,37 +222,47 @@ CREATE TABLE procedure_in_consultation
 CREATE TABLE procedure_in_radiology
 (
     name VARCHAR(64) NOT NULL,
-    file VARCHAR(255),
-    VAT_doctor CHAR(10),
+    file VARCHAR
+    (255),
+    VAT_doctor CHAR
+    (10),
     date_timestamp DATETIME NOT NULL,
-    PRIMARY KEY(file),
-    FOREIGN KEY(name) REFERENCES procedure_in_consultation(name) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(VAT_doctor, date_timestamp) REFERENCES procedure_in_consultation(VAT_doctor, date_timestamp) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY
+    (file),
+    FOREIGN KEY
+    (name) REFERENCES procedure_in_consultation
+    (name) ON
+    DELETE CASCADE ON
+    UPDATE CASCADE,
+    FOREIGN KEY(VAT_doctor, date_timestamp) REFERENCES procedure_in_consultation(VAT_doctor, date_timestamp)
+    ON
+    DELETE CASCADE ON
+    UPDATE CASCADE,
     UNIQUE(name, VAT_doctor, date_timestamp)
 );
 
-CREATE TABLE teeth
-(
-    quadrant VARCHAR(11),
-    number INTEGER(1),
-    name VARCHAR(32) NOT NULL,
-    PRIMARY KEY(quadrant, number),
-    CHECK(number BETWEEN 1 AND 8)
-);
+    CREATE TABLE teeth
+    (
+        quadrant VARCHAR(11),
+        number INTEGER(1),
+        name VARCHAR(32) NOT NULL,
+        PRIMARY KEY(quadrant, number),
+        CHECK(number BETWEEN 1 AND 8)
+    );
 
-CREATE TABLE procedure_charting
-(
-    name VARCHAR(64) NOT NULL,
-    VAT CHAR(10),
-    date_timestamp DATETIME NOT NULL,
-    quadrant VARCHAR(11) NOT NULL,
-    number INTEGER(1) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    measure NUMERIC(3,1) NOT NULL,
-    FOREIGN KEY(name) REFERENCES procedure_in_consultation(name) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(VAT, date_timestamp) REFERENCES procedure_in_consultation(VAT_doctor, date_timestamp) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(quadrant, number) REFERENCES teeth(quadrant, number) ON DELETE CASCADE ON UPDATE CASCADE,
-    UNIQUE(name, VAT, date_timestamp, quadrant, number),
-    CHECK(measure>=0)
-);
+    CREATE TABLE procedure_charting
+    (
+        name VARCHAR(64) NOT NULL,
+        VAT CHAR(10),
+        date_timestamp DATETIME NOT NULL,
+        quadrant VARCHAR(11) NOT NULL,
+        number INTEGER(1) NOT NULL,
+        description VARCHAR(255) NOT NULL,
+        measure NUMERIC(3,1) NOT NULL,
+        FOREIGN KEY(name) REFERENCES procedure_in_consultation(name) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(VAT, date_timestamp) REFERENCES procedure_in_consultation(VAT_doctor, date_timestamp) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY(quadrant, number) REFERENCES teeth(quadrant, number) ON DELETE CASCADE ON UPDATE CASCADE,
+        UNIQUE(name, VAT, date_timestamp, quadrant, number),
+        CHECK(measure>=0)
+    );
 
