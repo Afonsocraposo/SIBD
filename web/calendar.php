@@ -14,6 +14,7 @@ class Calendar
         $this->db = new Database();
         $this->dbh = $this->db->connect();
         $this->naviHref = htmlentities($_SERVER['PHP_SELF']);
+        date_default_timezone_set('Europe/London');
     }
 
     /********************* PROPERTY ********************/
@@ -24,6 +25,8 @@ class Calendar
     private $currentMonth = 0;
 
     private $currentDay = 0;
+
+    private $actualDate = null;
 
     private $currentDate = null;
 
@@ -81,6 +84,10 @@ class Calendar
         $this->currentYear = $year;
 
         $this->currentMonth = $month;
+
+        $this->actualDate = date('Y-m-d', time());
+
+        $this->actualDay = date("d", time());
 
         $this->daysInMonth = $this->_daysInMonth($month, $year);
 
@@ -170,7 +177,11 @@ class Calendar
         if ($cellContent == null) {
             $color = "rgb(255,255,255)";
         } else {
-            $color = "rgba(0,255,0,$opacity)";
+            if (strtotime($this->actualDate) <= strtotime($this->currentDate)) {
+                $color = "rgba(0,255,0,$opacity)";
+            } else {
+                $color = "rgba(150,150,150,$opacity)";
+            }
         }
         return "<li onclick=\"location.href='" . $this->db->url() . "appointment.php?date=" . $this->currentDate . (($this->VAT != null) ? "&client=" . $this->VAT : "") . "'\" " . 'style="background-color:' . $color . '" id="li-' . $this->currentDate . '" class="' . ($cellNumber % 7 == 1 ? ' start ' : ($cellNumber % 7 == 0 ? ' end ' : ' ')) . ($cellContent == null ? 'mask' : 'number') . '">' . $cellContent . '</li></a>';
     }

@@ -61,7 +61,6 @@ $dbh = $db->connect();
 
     <?php
 
-    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
 
     $value_new_VAT = isset($_POST['new_VAT']) ? $_POST['new_VAT'] : "";
     $value_new_timestamp = isset($_POST['new_timestamp']) ? $_POST['new_timestamp'] : "";
@@ -497,8 +496,14 @@ $dbh = $db->connect();
 
         if ($result_consultation != null) {
 
+            echo "<div style='width: 100%; text-align:center'>
+            <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "client.php?VAT=" . $result_consultation["VAT"] . "'\"><</button>
+            <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button>
+            <button name='' value='' style='visibility:hidden;font-size:2em;'><</button>
+            </div><br>";
+
             echo "<div class='wrapper'>
-            <div class='container' onclick=\"location.href='" . $db->url() . "client.php?VAT=" . $result_consultation["VAT"] . "'\">
+            <div class='container'>
             <div class='one'>
             <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/" . $result_consultation["gender"] . ".png'/>
             </div>

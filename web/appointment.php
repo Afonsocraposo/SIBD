@@ -12,6 +12,10 @@ $dbh = $db->connect();
     <link rel="stylesheet" type="text/css" href="style.css">
     <link href="calendar.css" type="text/css" rel="stylesheet" />
     <style>
+        body {
+            text-align: center;
+        }
+
         #popup {
             width: 50%;
             padding: 20px;
@@ -31,9 +35,6 @@ $dbh = $db->connect();
 
 <body>
     <?php
-
-    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
-
 
     $value_date = isset($_GET['date']) ? $_GET['date'] : "";
     $value_client_VAT = isset($_GET['client']) ? $_GET['client'] : "";
@@ -137,42 +138,49 @@ $dbh = $db->connect();
             }
         }
 
-        $hour = 9;
-        if (!empty($result_appointments)) {
-            echo ("<table>\n");
-            echo ("<tr class='header'><td>Hour</td><td>Doctor</td><td>Client</td><td>Description</td><td>&#128465;</td></tr>\n");
-            foreach ($result_appointments as &$appointment) {
-                while ($appointment['dt'] >= $hour) {
-                    $date = $value_date . " " . sprintf("%'.02d:00", $hour);
-                    echo "<tr class='hour' id='$hour' onclick='prompt(\"$date\", \"$value_client_VAT\")'><td>" . sprintf("%'.02d:00", $hour) . "</td></tr>";
-                    $hour++;
-                }
+        date_default_timezone_set('Europe/London');
+        $current_date = time();
+        $prev_day = date("Y-m-d", strtotime($value_date) - 60 * 60 * 24);
+        $next_day = date("Y-m-d", strtotime($value_date) + 60 * 60 * 24);
+        $month = sprintf("%'.02d", date("m", strtotime($value_date)));
+        $year = sprintf("%'.02d", date("Y", strtotime($value_date)));
+        echo "<div style='width: 100%;'>
+        <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button>
+        <br><br>
+        <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "appointment.php?date=$prev_day'\"><</button>
+        <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "appointments.php?month=$month&year=$year'\">	&#128197;</button>
+        <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "appointment.php?date=$next_day'\">></button>
+        </div>";
 
-                echo "<tr onclick=\"location.href='" . $db->url() . "consultation.php?VAT=" . $appointment["DVAT"] . "&timestamp=" . $appointment["date_timestamp"] . "'\"><td></td><td>" . $appointment['Dname'] . "</td><td>" . $appointment['Cname'] . "</td><td>" . $appointment['description'] . "</td>
-                <td>
-                    <form action='' method='post'>
-                        <input style='display:none' name='VAT' value='" . $appointment['DVAT'] . "'>
-                        <input style='display:none' name='dt' value='" . $appointment['date_timestamp'] . "'>
-                        <button name='rm_appointment' value='' style='background:red; color:white'>&#10008;</button>
-                    </form>
-                </td>
-                </tr>\n";
+        echo "<h1>" . $value_date . "</h1>";
+
+
+        $c = 0;
+        $delete = false;
+        echo ("<table>\n");
+        echo ("<tr class='header'><td>Hour</td><td>Doctor</td><td>Client</td><td>Description</td><td>&#128465;</td></tr>\n");
+        for ($hour = 9; $hour < 17; $hour++) {
+            $date = $value_date . " " . sprintf("%'.02d:00", $hour);
+            if (strtotime($date) >= $current_date) {
+                echo "<tr class='hour' onclick='prompt(\"$date\", \"$value_client_VAT\")'><td>" . sprintf("%'.02d:00", $hour) . "</td></tr>";
+                $delete = true;
+            } else {
+                echo "<tr class='hour past'><td>" . sprintf("%'.02d:00", $hour) . "</td></tr>";
             }
-            while (17 > $hour) {
-                $date = $value_date . " " . sprintf("%'.02d:00", $hour);
-                echo "<tr class='hour' id='$hour' onclick='prompt(\"$date\", \"$value_client_VAT\")'><td>" . sprintf("%'.02d:00", $hour) . "</td></tr>";
-                $hour++;
+            if (!empty($result_appointments) && $c < count($result_appointments)) {
+                while ($result_appointments[$c]['dt'] == $hour) {
+                    echo "<tr onclick=\"location.href='" . $db->url() . "consultation.php?VAT=" . $result_appointments[$c]["DVAT"] . "&timestamp=" . $result_appointments[$c]["date_timestamp"] . "'\"><td></td><td>" . $result_appointments[$c]['Dname'] . "</td><td>" . $result_appointments[$c]['Cname'] . "</td><td>" . $result_appointments[$c]['description'] . "</td>
+                        <td>
+                            <form action='' method='post'>
+                                <input style='display:none' name='VAT' value='" . $result_appointments[$c]['DVAT'] . "'>
+                                <input style='display:none' name='dt' value='" . $result_appointments[$c]['date_timestamp'] . "'>
+                                " . ($delete ? "<button name='rm_appointment' value='' style='background:red; color:white'>&#10008;</button>" : "") .
+                        "</form>
+                        </td>
+                        </tr>\n";
+                    $c++;
+                }
             }
-            echo ("</table>\n");
-        } else {
-            echo ("<table>\n");
-            echo ("<tr class='header'><td>Hour</td><td>Doctor</td><td>Client</td><td>Description</td><td>&#128465;</td></tr>\n");
-            while (17 > $hour) {
-                $date = $value_date . " " . sprintf("%'.02d:00", $hour);
-                echo "<tr class='hour' id='$hour' onclick='prompt(\"$date\", \"$value_client_VAT\")'><td>" . sprintf("%'.02d:00", $hour) . "</td></tr>";
-                $hour++;
-            }
-            echo ("</table>\n");
         }
     } else {
         echo "<script>location.href='" . $db->url() . "appointments.php'</script>";
@@ -188,7 +196,7 @@ $dbh = $db->connect();
             document.getElementById("popup").style.display = "block";
             document.getElementById("date").innerHTML = date;
             document.getElementById("add_timestamp").value = date;
-            document.getElementById("doctor").innerHTML = "<input list='doctors" + parseInt(date.slice(11, 13)) + "' name='add_doctor' id='add_doctor' required style='width:200px'>";
+            document.getElementById("doctor").innerHTML = "<input form='add' list='doctors" + parseInt(date.slice(11, 13)) + "' name='add_doctor' id='add_doctor' required style='width:200px'>";
             if (client.length >= 9) {
                 document.getElementById("client").style.display = 'none';
                 document.getElementById("add_client").value = client;
@@ -199,7 +207,7 @@ $dbh = $db->connect();
     <div id="popup">
         <div style="float:right"><button onclick="document.getElementById('popup').style.display = 'none';">X</button></div><br><br>
         <div>
-            <form action='' method='post'>
+            <form action='' method='post' id='add'>
                 <h2 id="date"></h2>
                 <input name="add_timestamp" id="add_timestamp" style="display:none">
                 <span id="client">

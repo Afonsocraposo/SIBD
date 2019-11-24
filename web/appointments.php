@@ -19,9 +19,13 @@ $dbh = $db->connect();
 <body>
     <?php
     include 'calendar.php';
-    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
 
     $value_VAT = isset($_POST['VAT']) ? $_POST['VAT'] : "";
+    echo "<div style='width: 100%; text-align:center'>
+    <button name='' value='' style='" . (empty($value_VAT) ? "visibility:hidden; " : "") . "font-size:2em;' onclick=\"location.href='" . $db->url() . "client.php?VAT=$value_VAT'\"><</button>
+    <button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button>
+    <button name='' value='' style='visibility:hidden;font-size:2em;'><</button>
+    </div><br>";
 
     $calendar = new Calendar();
 

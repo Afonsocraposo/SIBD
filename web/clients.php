@@ -14,7 +14,7 @@ $dbh = $db->connect();
 <body>
 	<span style="display:flex">
 		<form action="clients.php" method="get" style="flex: 0 0 60vw;">
-			<input style="width:30vw;" name="search" type="text" placeholder="VAT, name or addres">
+			<input style="width:25vw;" name="search" type="text" placeholder="VAT, name or addres">
 			<input type="submit" value="Search">
 			<input type="radio" name="search_type" value="all" checked="checked" id="all"><label for="all"> All </label>
 			<input type="radio" name="search_type" value="VAT" id="VAT"><label for="VAT"> VAT </label>
@@ -25,7 +25,7 @@ $dbh = $db->connect();
 			<input type="submit" value="New Client">
 		</form>
 		<form action='appointments.php' method='post' style="flex: 0 0 20vw;">
-			<input type='submit' value='New Appointment'>
+			<input type='submit' value='Appointments'>
 		</form>
 	</span>
 	<br>
@@ -33,6 +33,8 @@ $dbh = $db->connect();
 
 	$field = isset($_GET['search_type']) ? $_GET['search_type'] : "";
 	$value = isset($_GET['search']) ? $_GET['search'] : "";
+	$sort = isset($_GET['sort']) ? $_GET['sort'] : "name";
+	$order = isset($_GET['order']) ? $_GET['order'] : "asc";
 
 	if (!empty($value)) {
 
@@ -61,7 +63,7 @@ $dbh = $db->connect();
 				break;
 		}
 	} else {
-		$stmt = $dbh->prepare("SELECT * FROM client ORDER BY name ASC") or die($dbh->error);
+		$stmt = $dbh->prepare("SELECT * FROM client ORDER BY $sort $order") or die($dbh->error);
 	}
 
 	if (!$stmt->execute()) {
@@ -69,7 +71,11 @@ $dbh = $db->connect();
 	} else {
 		if ($stmt->rowCount() > 0) {
 			echo ("<table>");
-			echo ("<tr class='header'><td>VAT</td><td>Name</td><td>Addres</td><td>Birth Date</td></tr>\n");
+			echo ("<tr class='header'>
+			<td onclick=\"location.href = '" . $db->url() . "clients.php?sort=VAT&order=" . ($sort == 'VAT' ? ($order == 'asc' ? 'desc' : 'asc') : 'asc') . "'\">VAT</td>
+			<td onclick=\"location.href = '" . $db->url() . "clients.php?sort=name&order=" . ($sort == 'name' ? ($order == 'asc' ? 'desc' : 'asc') : 'asc') . "'\">Name</td>
+			<td onclick=\"location.href = '" . $db->url() . "clients.php?sort=street&order=" . ($sort == 'street' ? ($order == 'asc' ? 'desc' : 'asc') : 'asc') . "'\">Address</td>
+			<td onclick=\"location.href = '" . $db->url() . "clients.php?sort=birth_date&order=" . ($sort == 'birth_date' ? ($order == 'asc' ? 'desc' : 'asc') : 'asc') . "'\">Birth Date</td>");
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				echo "<tr onclick=\" location.href = '" . $db->url() . "client.php?VAT=" . $row['VAT'] . "';\"><td>" . $row['VAT'] . "</td><td>" . $row['name'] . "</td><td>" . $row['street'] . ", " . $row['zip'] . ", " . $row['city'] . "</td><td>" . $row['birth_date'] . "</td></tr>\n";
 			}

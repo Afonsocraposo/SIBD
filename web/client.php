@@ -37,9 +37,6 @@ $dbh = $db->connect();
 <body>
     <?php
 
-    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
-
-
     $value_VAT = isset($_GET['VAT']) ? $_GET['VAT'] : "";
     $client = null;
     $result_appointments = null;
@@ -92,6 +89,13 @@ $dbh = $db->connect();
         }
 
 
+        echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br>
+        <br><form action='appointments.php' method='post'>
+                <input style='display:none' name='VAT' value='$VAT'>
+                <input type='submit' value='New Appointment'>
+                </form>
+        </div><br>";
+
         echo "<div class='container'><div class='one'>
         <img id='profileImage' src='http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/profile/$gender.png'/>";
 
@@ -107,11 +111,6 @@ $dbh = $db->connect();
 
         echo "</div></div>
         <div style='width:100%'>";
-
-        echo "<br><br><form action='appointments.php' method='post'>
-            <input style='display:none' type='text' name='VAT' value='$VAT'>
-		    <input type='submit' value='New Appointment'>
-	        </form>";
 
         echo "<h2>Appointments:</h2>";
         if (!empty($result_appointments)) {
