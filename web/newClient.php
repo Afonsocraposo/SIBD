@@ -49,14 +49,18 @@ $dbh = $db->connect();
     </form>
 
     <?php
-    $value_VAT = $_POST['VAT'] == null ? "" : $_POST['VAT'];
-    $value_name = $_POST['name'] == null ? "" : $_POST['name'];
-    $value_birth_date = $_POST['birth_date'] == null ? "" : $_POST['birth_date'];
-    $value_street = $_POST['street'] == null ? "" : $_POST['street'];
-    $value_city = $_POST['city'] == null ? "" : $_POST['city'];
-    $value_zip = $_POST['zip'] == null ? "" : $_POST['zip'];
-    $value_gender = $_POST['gender'] == null ? "" : $_POST['gender'];
-    $value_phone = $_POST['phone'] == null ? "" : $_POST['phone'];
+
+    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
+
+
+    $value_VAT = isset($_POST['VAT']) ? $_POST['VAT'] : "";
+    $value_name = isset($_POST['name']) ? $_POST['name'] : "";
+    $value_birth_date = isset($_POST['birth_date']) ? $_POST['birth_date'] : "";
+    $value_street = isset($_POST['street']) ? $_POST['street'] : "";
+    $value_city = isset($_POST['city']) ? $_POST['city'] : "";
+    $value_zip = isset($_POST['zip']) ? $_POST['zip'] : "";
+    $value_gender = isset($_POST['gender']) ? $_POST['gender'] : "";
+    $value_phone = isset($_POST['phone']) ? $_POST['phone'] : "";
 
     if (!empty($value_VAT) && !empty($value_name) && !empty($value_birth_date) && !empty($value_street) && !empty($value_city) && !empty($value_zip) && !empty($value_gender)) {
 

@@ -8,27 +8,31 @@ $dbh = $db->connect();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>SIBD</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
-	<form action="clients.php" method="get">
-		<input name="search" type="text" placeholder="VAT, name or addres">
-		<input type="submit" value="Search">
-		<input type="radio" name="search_type" value="all" checked="checked" id="all"><label for="all"> All </label>
-		<input type="radio" name="search_type" value="VAT" id="VAT"><label for="VAT"> VAT </label>
-		<input type="radio" name="search_type" value="name" id="name"><label for="name"> Name </label>
-		<input type="radio" name="search_type" value="address" id="address"><label for="address"> Address </label>
-	</form>
-	<br>
-	<form action="newClient.php">
-		<input type="submit" value="New Client">
-	</form>
+	<span style="display:flex">
+		<form action="clients.php" method="get" style="flex: 0 0 60vw;">
+			<input style="width:30vw;" name="search" type="text" placeholder="VAT, name or addres">
+			<input type="submit" value="Search">
+			<input type="radio" name="search_type" value="all" checked="checked" id="all"><label for="all"> All </label>
+			<input type="radio" name="search_type" value="VAT" id="VAT"><label for="VAT"> VAT </label>
+			<input type="radio" name="search_type" value="name" id="name"><label for="name"> Name </label>
+			<input type="radio" name="search_type" value="address" id="address"><label for="address"> Address </label>
+		</form>
+		<form action="newClient.php" style="flex: 0 0 20vw; text-align: center">
+			<input type="submit" value="New Client">
+		</form>
+		<form action='appointments.php' method='post' style="flex: 0 0 20vw;">
+			<input type='submit' value='New Appointment'>
+		</form>
+	</span>
 	<br>
 	<?php
 
-	$field = $_GET['search_type'] == null ? "" : $_GET['search_type'];
-	$value = $_GET['search'] == null ? "" : $_GET['search'];
+	$field = isset($_GET['search_type']) ? $_GET['search_type'] : "";
+	$value = isset($_GET['search']) ? $_GET['search'] : "";
 
 	if (!empty($value)) {
 

@@ -9,7 +9,7 @@ $dbh = $db->connect();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <style>
         .wrapper {
             display: flex;
@@ -25,8 +25,8 @@ $dbh = $db->connect();
         }
 
         img {
-            width: 15vw;
-            height: 15vw;
+            width: 10vw;
+            height: 10vw;
         }
 
         .one {
@@ -61,16 +61,30 @@ $dbh = $db->connect();
 
     <?php
 
-    echo "<button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br>";
+    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
 
+    $value_new_VAT = isset($_POST['new_VAT']) ? $_POST['new_VAT'] : "";
+    $value_new_timestamp = isset($_POST['new_timestamp']) ? $_POST['new_timestamp'] : "";
 
-    $value_VAT = $_GET['VAT']  == null ? "" : $_GET['VAT'];
-    $value_timestamp = $_GET['timestamp']  == null ? "" : $_GET['timestamp'];
+    if (!empty($value_new_VAT) && !empty($value_new_timestamp)) {
+        $query_new_consultation = "INSERT INTO consultation (VAT_doctor, date_timestamp)
+        VALUES (?, ?)";
+        $stmt = $dbh->prepare($query_new_consultation);
+        $stmt->bindParam(1, $value_new_VAT);
+        $stmt->bindParam(2, $value_new_timestamp);
+        if (!$stmt->execute()) {
+            print("Something went wrong when creating consultation");
+        }
+        echo "<script>location.href='" . $db->url() . "consultation.php?VAT=$value_new_VAT&timestamp=$value_new_timestamp'</script>";
+    }
 
-    $value_add_diagnostic = $_POST['add_diagnostic']  == null ? "" : $_POST['add_diagnostic'];
-    $value_rm_diagnostic = $_POST['rm_diagnostic']  == null ? "" : $_POST['rm_diagnostic'];
+    $value_VAT = isset($_GET['VAT']) ? $_GET['VAT'] : "";
+    $value_timestamp = isset($_GET['timestamp']) ? $_GET['timestamp'] : "";
 
-    $value_add_medication = $_POST['add_medication']  == null ? "" : $_POST['add_medication'];
+    $value_add_diagnostic = isset($_POST['add_diagnostic']) ? $_POST['add_diagnostic'] : "";
+    $value_rm_diagnostic = isset($_POST['rm_diagnostic']) ? $_POST['rm_diagnostic'] : "";
+
+    $value_add_medication = isset($_POST['add_medication']) ? $_POST['add_medication'] : "";
     if (empty($value_add_medication)) {
         $value_add_medication_name = "";
         $value_add_medication_lab = "";
@@ -80,11 +94,11 @@ $dbh = $db->connect();
         $value_add_medication_lab = $pieces[1];
     }
 
-    $value_add_prescription_ID = $_POST['add_medication_ID']  == null ? "" : $_POST['add_medication_ID'];
-    $value_add_dosage = $_POST['add_dosage']  == null ? "" : $_POST['add_dosage'];
-    $value_add_regime = $_POST['add_regime']  == null ? "" : $_POST['add_regime'];
+    $value_add_prescription_ID = isset($_POST['add_medication_ID']) ? $_POST['add_medication_ID'] : "";
+    $value_add_dosage = isset($_POST['add_dosage']) ? $_POST['add_dosage'] : "";
+    $value_add_regime = isset($_POST['add_regime']) ? $_POST['add_regime'] : "";
 
-    $value_rm_medication = $_POST['rm_medication']  == null ? "" : $_POST['rm_medication'];
+    $value_rm_medication = isset($_POST['rm_medication']) ? $_POST['rm_medication'] : "";
     if (empty($value_rm_medication)) {
         $value_rm_medication_name = "";
         $value_rm_medication_lab = "";
@@ -96,22 +110,27 @@ $dbh = $db->connect();
         $value_rm_medication_ID = $pieces[2];
     }
 
-    $value_add_nurse = $_POST['add_nurse']  == null ? "" : $_POST['add_nurse'];
-    $value_rm_nurse = $_POST['rm_nurse']  == null ? "" : $_POST['rm_nurse'];
+    $value_add_nurse = isset($_POST['add_nurse']) ? $_POST['add_nurse'] : "";
+    $value_rm_nurse = isset($_POST['rm_nurse']) ? $_POST['rm_nurse'] : "";
 
-    $value_save_SOAP_S = $_POST['save_SOAP_S']  == null ? "" : $_POST['save_SOAP_S'];
-    $value_save_SOAP_O = $_POST['save_SOAP_O']  == null ? "" : $_POST['save_SOAP_O'];
-    $value_save_SOAP_A = $_POST['save_SOAP_A']  == null ? "" : $_POST['save_SOAP_A'];
-    $value_save_SOAP_P = $_POST['save_SOAP_P']  == null ? "" : $_POST['save_SOAP_P'];
+    $value_add_procedure_name = isset($_POST['add_procedure_name']) ? $_POST['add_procedure_name'] : "";
+    $value_add_procedure_description = isset($_POST['add_procedure_description']) ? $_POST['add_procedure_description'] : "";
+    $value_rm_procedure = isset($_POST['rm_procedure']) ? $_POST['rm_procedure'] : "";
+
+    $value_save_SOAP_S = isset($_POST['save_SOAP_S']) ? $_POST['save_SOAP_S'] : "";
+    $value_save_SOAP_O = isset($_POST['save_SOAP_O']) ? $_POST['save_SOAP_O'] : "";
+    $value_save_SOAP_A = isset($_POST['save_SOAP_A']) ? $_POST['save_SOAP_A'] : "";
+    $value_save_SOAP_P = isset($_POST['save_SOAP_P']) ? $_POST['save_SOAP_P'] : "";
 
     $result_consultation;
     $result_nurse;
+    $result_available_nurses;
     $result_diagnostic;
     $result_available_diagnostic;
     $result_prescription;
     $result_available_prescription;
     $result_procedure;
-    $result_available_nurses;
+    $result_available_procedures;
 
 
     if (!empty($value_VAT) && !empty($value_timestamp)) {
@@ -222,6 +241,23 @@ $dbh = $db->connect();
         WHERE procedure_in_consultation.VAT_doctor = ?
         AND procedure_in_consultation.date_timestamp = ?
         ORDER BY procedure_.type ASC";
+
+        $query_add_procedure = "INSERT INTO procedure_in_consultation (VAT_doctor, date_timestamp, name, description)
+        VALUES (?, ? , ?, ?)";
+
+        $query_rm_procedure = "DELETE FROM procedure_in_consultation
+        WHERE VAT_doctor = ?
+        AND date_timestamp = ?
+        AND name = ?";
+
+        $query_available_procedure = "SELECT * 
+        FROM procedure_
+        WHERE name NOT IN (
+        SELECT name
+        FROM procedure_in_consultation
+        WHERE VAT_doctor = ?
+        AND date_timestamp = ?)
+        ORDER BY name ASC";
 
         if (!empty($value_save_SOAP_S)) {
             $stmt = $dbh->prepare($query_save_SOAP_S);
@@ -414,6 +450,28 @@ $dbh = $db->connect();
         }
         echo "</datalist>";
 
+        if (!empty($value_rm_procedure)) {
+            $stmt = $dbh->prepare($query_rm_procedure);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_rm_procedure);
+            if (!$stmt->execute()) {
+                print("Something went wrong when removing procedure");
+            }
+        }
+
+        if (!empty($value_add_procedure_name) && !empty($value_add_procedure_description)) {
+            $stmt = $dbh->prepare($query_add_procedure);
+            $stmt->bindParam(1, $value_VAT);
+            $stmt->bindParam(2, $value_timestamp);
+            $stmt->bindParam(3, $value_add_procedure_name);
+            $stmt->bindParam(4, $value_add_procedure_description);
+            if (!$stmt->execute()) {
+                print($stmt->error);
+                print("Something went wrong when adding procedure");
+            }
+        }
+
         $stmt = $dbh->prepare($query_procedure);
         $stmt->bindParam(1, $value_VAT);
         $stmt->bindParam(2, $value_timestamp);
@@ -422,6 +480,17 @@ $dbh = $db->connect();
         } else {
             if ($stmt->rowCount() > 0) {
                 $result_procedure = $stmt->fetchAll();
+            }
+        }
+
+        $stmt = $dbh->prepare($query_available_procedure);
+        $stmt->bindParam(1, $value_VAT);
+        $stmt->bindParam(2, $value_timestamp);
+        if (!$stmt->execute()) {
+            print("Something went wrong when fetching the available nurses");
+        } else {
+            if ($stmt->rowCount() > 0) {
+                $result_available_procedures = $stmt->fetchAll();
             }
         }
 
@@ -464,16 +533,16 @@ $dbh = $db->connect();
             <button name='' value='' style='background:#B0C4DE'>&#128190;</button>
             </form>";
             echo "<h4>Subjective</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_S' form='save_SOAP'>" . $result_consultation["SOAP_S"] . "</textarea><br>";
+            echo "<textarea maxlength='512' wrap='hard' name='save_SOAP_S' form='save_SOAP'>" . $result_consultation["SOAP_S"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Objective</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_O' form='save_SOAP'>" . $result_consultation["SOAP_O"] . "</textarea><br>";
+            echo "<textarea maxlength='512' wrap='hard' name='save_SOAP_O' form='save_SOAP'>" . $result_consultation["SOAP_O"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Assessment</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_A' form='save_SOAP'>" . $result_consultation["SOAP_A"] . "</textarea><br>";
+            echo "<textarea maxlength='512' wrap='hard' name='save_SOAP_A' form='save_SOAP'>" . $result_consultation["SOAP_A"] . "</textarea><br>";
             echo "<br>";
             echo "<h4>Plan</h4><br>";
-            echo "<textarea rows='4' cols='100' maxlength='512' wrap='hard' name='save_SOAP_P' form='save_SOAP'>" . $result_consultation["SOAP_P"] . "</textarea><br>";
+            echo "<textarea maxlength='512' wrap='hard' name='save_SOAP_P' form='save_SOAP'>" . $result_consultation["SOAP_P"] . "</textarea><br>";
             echo "<br>";
         } else {
             echo "<script>location.href='" . $db->url() . "clients.php'</script>";
@@ -565,22 +634,52 @@ $dbh = $db->connect();
         echo "<br><br><h3>Procedure(s)</h3><br><br>";
         if ($result_procedure != null) {
             echo ("<table>\n");
-            echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td></tr>\n");
+            echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td><td>&#128465;</td></tr>\n");
             foreach ($result_procedure as &$procedure) {
-                echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td></tr>\n";
+                echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td>
+                <td>
+                    <form action='' method='post'>
+                        <button name='rm_procedure' value='" . $procedure['name'] . "' style='background:red; color:white'>&#10008;</button>
+                    </form>
+                </td>
+                </tr>\n";
             }
             echo ("</table>\n");
         } else {
-            echo "No medication.";
+            echo "No procedures.";
         }
     } else {
         echo "<script>location.href='" . $db->url() . "clients.php'</script>";
+    }
+
+    if ($result_available_procedures != null) {
+        echo "<br><form action='' method='post'>
+        <input list='procedures' name='add_procedure_name' autocomplete='off' required id='procedure_name' oninput='checkProcedure()'>
+        <datalist id='procedures'>";
+        foreach ($result_available_procedures as &$procedure) {
+            echo "<option value=\"" . $procedure['name'] . "\">" . $procedure['type'] . "</option>";
+        }
+        echo "</datalist>
+        <button name='' value='' style='background:green; color:white'>&#10010;</button><br><br>
+        <div id='procedure_text'><label for='procedure_description'><h4>Description</h4></label><br><textarea rows='4' id='procedure_description' cols='100' maxlength='255' wrap='hard' name='add_procedure_description' required></textarea></div>
+        </form>";
     }
 
     $dbh = null;
     ?>
 
     <script>
+        function checkProcedure() {
+            if (document.getElementById("procedure_name").value === "") {
+                document.getElementById("procedure_text").style.display = 'none';
+            } else {
+                document.getElementById("procedure_text").style.display = 'inline';
+            }
+            return;
+        }
+
+
+
         function promptPrescription(ID) {
             document.getElementById("popupPrescription").style.display = "block";
             var left = window.scrollX + document.getElementById(ID).getBoundingClientRect().left;

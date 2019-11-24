@@ -1,6 +1,10 @@
 * {
-    font-family: 'Avenir', 'Arial', sans-serif;
+    font-family: 'Lato', sans-serif;
     font-size: large;
+}
+
+body {
+    padding-bottom: 20px;
 }
 
 h1 {
@@ -27,15 +31,27 @@ table {
 
 textarea {
     width: 100%;
+    height: 100px;
 }
 
 form { margin-bottom: 0; }
+
+
 
 th,
 td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
     text-align: center;
+}
+
+.hour td {
+    padding-top: 50px;
+    border-bottom: 1px solid black;
+}
+
+.hour td:hover {
+    background-color: rgb(215,255,0);
 }
 
 .center {

@@ -9,7 +9,7 @@ $dbh = $db->connect();
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <style>
         .container {
             widht: 100%;
@@ -36,7 +36,11 @@ $dbh = $db->connect();
 
 <body>
     <?php
-    $value_VAT = $_GET['VAT'] == null ? "" : $_GET['VAT'];
+
+    echo "<div style='width: 100%; text-align:center'><button name='' value='' style='font-size:2em;' onclick=\"location.href='" . $db->url() . "clients.php'\">&#127968;</button><br></div><br>";
+
+
+    $value_VAT = isset($_GET['VAT']) ? $_GET['VAT'] : "";
     $client = null;
     $result_appointments = null;
 
@@ -104,14 +108,26 @@ $dbh = $db->connect();
         echo "</div></div>
         <div style='width:100%'>";
 
+        echo "<br><br><form action='appointments.php' method='post'>
+            <input style='display:none' type='text' name='VAT' value='$VAT'>
+		    <input type='submit' value='New Appointment'>
+	        </form>";
 
-        echo "<br><h2>Appointments:</h2>";
+        echo "<h2>Appointments:</h2>";
         if (!empty($result_appointments)) {
             echo ("<table>\n");
             echo ("<tr class='header'><td>Date Timestamp</td><td>Doctor</td><td>Description</td><td>Attended</td></tr>\n");
             foreach ($result_appointments as &$appointment) {
                 if ($appointment['consultation'] == null) {
-                    echo "<tr><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:red\">&#10008;</td></tr>\n";
+                    echo "<tr><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td>
+                    <td>
+                    <form action='consultation.php' method='post'>
+                        <input style='display:none' name='new_VAT' value='" . $appointment['VAT_doctor'] . "'>
+                        <input style='display:none' name='new_timestamp' value='" . $appointment['date_timestamp'] . "'>
+                        <button name='' value='' style='background:red; color:white; font-weight:bold'>?</button>
+                    </form>
+                    </td>
+                    </tr>\n";
                 } else {
                     echo "<tr onclick=\"location.href = '" . $db->url() . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
                 }
