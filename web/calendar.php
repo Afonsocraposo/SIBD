@@ -170,7 +170,7 @@ class Calendar
         if ($cellContent == null) {
             $color = "rgb(255,255,255)";
         } else {
-            $color = "rgba(125,255,0,$opacity)";
+            $color = "rgba(0,255,0,$opacity)";
         }
         return "<li onclick=\"location.href='" . $this->db->url() . "appointment.php?date=" . $this->currentDate . (($this->VAT != null) ? "&client=" . $this->VAT : "") . "'\" " . 'style="background-color:' . $color . '" id="li-' . $this->currentDate . '" class="' . ($cellNumber % 7 == 1 ? ' start ' : ($cellNumber % 7 == 0 ? ' end ' : ' ')) . ($cellContent == null ? 'mask' : 'number') . '">' . $cellContent . '</li></a>';
     }

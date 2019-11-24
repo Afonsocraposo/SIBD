@@ -83,11 +83,13 @@ $dbh = $db->connect();
     FROM appointment 
     INNER JOIN employee 
     ON appointment.VAT_doctor = employee.VAT
-    WHERE appointment.date_timestamp LIKE CONCAT('2019-08-06 ',?,'%'))";
+    WHERE appointment.date_timestamp LIKE CONCAT(?,' ',?,':%'))";
     $stmt = $dbh->prepare($query_available_doctors);
     for ($i = 9; $i < 17; $i++) {
         $h = sprintf("%'.02d", $i);
-        $stmt->bindParam(1, $h);
+
+        $stmt->bindParam(1, $value_date);
+        $stmt->bindParam(2, $h);
         if (!$stmt->execute()) {
             print("Something went wrong when fetching available doctors");
         } else {
@@ -151,7 +153,7 @@ $dbh = $db->connect();
                     <form action='' method='post'>
                         <input style='display:none' name='VAT' value='" . $appointment['DVAT'] . "'>
                         <input style='display:none' name='dt' value='" . $appointment['date_timestamp'] . "'>
-                        <button name='rm_appointment' value='" . $diagnostic['ID'] . "' style='background:red; color:white'>&#10008;</button>
+                        <button name='rm_appointment' value='' style='background:red; color:white'>&#10008;</button>
                     </form>
                 </td>
                 </tr>\n";
