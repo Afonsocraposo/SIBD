@@ -114,18 +114,26 @@ $dbh = $db->connect();
 
         echo "<h2>Appointments:</h2>";
         if (!empty($result_appointments)) {
+
+            date_default_timezone_set('Europe/London');
+            $current_date = time();
+
             echo ("<table>\n");
             echo ("<tr class='header'><td>Date Timestamp</td><td>Doctor</td><td>Description</td><td>Attended</td></tr>\n");
             foreach ($result_appointments as &$appointment) {
                 if ($appointment['consultation'] == null) {
                     echo "<tr><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td>
-                    <td>
-                    <form action='consultation.php' method='post'>
+                    <td>";
+                    if ($current_date >= strtotime($appointment['date_timestamp']) + 60 * 60 * 24) {
+                        echo "<span style='color:red'>&#10008;</span>";
+                    } else {
+                        echo "<form action='consultation.php' method='post'>
                         <input style='display:none' name='new_VAT' value='" . $appointment['VAT_doctor'] . "'>
                         <input style='display:none' name='new_timestamp' value='" . $appointment['date_timestamp'] . "'>
                         <button name='' value='' style='background:red; color:white; font-weight:bold'>?</button>
-                    </form>
-                    </td>
+                    </form>";
+                    }
+                    echo "</td>
                     </tr>\n";
                 } else {
                     echo "<tr onclick=\"location.href = '" . $db->url() . "consultation.php?VAT=" . $appointment['VAT_doctor'] . "&timestamp=" . $appointment['date_timestamp'] . "';\"><td>" . $appointment['date_timestamp'] . "</td><td>" . $appointment['name'] . "</td><td>" . $appointment['description'] . "</td><td style=\"color:green\">&#10004;</td></tr>\n";
