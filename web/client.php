@@ -126,12 +126,14 @@ $dbh = $db->connect();
                     <td>";
                     if ($current_date >= strtotime($appointment['date_timestamp']) + 60 * 60 * 24) {
                         echo "<span style='color:red'>&#10008;</span>";
-                    } else {
+                    } elseif ($current_date >= strtotime($appointment['date_timestamp'])) {
                         echo "<form action='consultation.php' method='post'>
                         <input style='display:none' name='new_VAT' value='" . $appointment['VAT_doctor'] . "'>
                         <input style='display:none' name='new_timestamp' value='" . $appointment['date_timestamp'] . "'>
                         <button name='' value='' style='background:red; color:white; font-weight:bold'>?</button>
                     </form>";
+                    } else {
+                        echo "<span style='color:red'><b>?<b/></span>";
                     }
                     echo "</td>
                     </tr>\n";
