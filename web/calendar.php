@@ -1,7 +1,5 @@
 <?php
 
-use Database;
-
 class Calendar
 {
 

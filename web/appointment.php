@@ -2,7 +2,6 @@
 include("database.php");
 $db = new Database();
 $dbh = $db->connect();
-
 ?>
 <html>
 

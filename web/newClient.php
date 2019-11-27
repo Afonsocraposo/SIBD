@@ -10,43 +10,29 @@ $dbh = $db->connect();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>SIBD</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $("#birth_date").datepicker({
+                minDate: "-120",
+                maxDate: "+0",
+                changeYear: true,
+                changeMonth: true,
+                yearRange: "-120:+0",
+                dateFormat: "yy-mm-dd"
+            });
+        });
+    </script>
 </head>
 
 <body>
-    <form action="newClient.php" method="post">
-        <label for="VAT">VAT</label><br>
-        <input name="VAT" id="VAT" type="text" placeholder="1234567890" inputmode="numeric" pattern="[0-9]{9,}$" maxlength="10" required="required" oninvalid="setCustomValidity('Invalid VAT')" oninput="setCustomValidity('')"><br>
-
-        <br><label for="name">Name</label><br>
-        <input name="name" id="name" type="text" placeholder="João Silva" pattern="[A-zÀ-ÿ ]+$" maxlength="64" required="required" oninvalid="setCustomValidity('Invalid name')" oninput="setCustomValidity('')"><br>
-
-        <br><label for="birth_date">Date of Birth</label><br>
-        <input name="birth_date" id="birth_date" type="date" required="required" min="1900-01-01" max=<?php
-                                                                                                        echo date('Y-m-d');
-                                                                                                        ?> oninvalid="setCustomValidity('Invalid Date')" oninput="setCustomValidity('')"><br>
-
-        <br><label for=" street">Street</label><br>
-        <input name="street" id="street" type="text" placeholder="Rua dos Lírios, 1" maxlength="32" required="required" oninvalid="setCustomValidity('Invalid street')" oninput="setCustomValidity('')"><br>
-
-        <br><label for="city">City</label><br>
-        <input name="city" id="city" type="text" placeholder="Lisbon" pattern="[A-zÀ-ÿ ]+$" maxlength="32" required="required" oninvalid="setCustomValidity('Invalid city')" oninput="setCustomValidity('')"><br>
-
-        <br><label for="zip">ZIP code</label><br>
-        <input name="zip" id="zip" type="text" placeholder="1234-567" inputmode="numeric" pattern="[0-9-]{8,8}$" maxlength="8" onkeydown="if(this.value.length==4 && event.keyCode!=8) this.value=this.value+'-'" required="required" oninvalid="setCustomValidity('Invalid ZIP code')" oninput="setCustomValidity('')"><br>
-
-        <br><label for="gender">Gender</label><br>
-        <input name="gender" id="male" type="radio" value="Male" checked>
-        <label for="male">Male</label>
-        <input name="gender" id="female" type="radio" value="Female">
-        <label for="female">Female</label><br>
-        <br>
-
-        <label for="phone">Phone Number</label><br>
-        <input name="phone" id="phone" type="text" placeholder="912345678" inputmode="numeric" pattern="[0-9+]{9,}$" maxlength="9" required="required" oninvalid="setCustomValidity('Invalid Phone Number')" oninput="setCustomValidity('')"><br>
-        <br>
-
-        <input type="submit" value="New Client">
-    </form>
 
     <?php
 
@@ -103,6 +89,42 @@ $dbh = $db->connect();
     $dbh = null;
     ?>
 
+    <form action="newClient.php" method="post">
+        <label for="VAT">VAT</label><br>
+        <input name="VAT" id="VAT" type="text" placeholder="1234567890" inputmode="numeric" pattern="[0-9]{9,}$" maxlength="10" required="required" oninvalid="setCustomValidity('Invalid VAT')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="name">Name</label><br>
+        <input name="name" id="name" type="text" placeholder="João Silva" pattern="[A-zÀ-ÿ ]+$" maxlength="64" required="required" oninvalid="setCustomValidity('Invalid name')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="birth_date">Date of Birth</label><br>
+        <input name="birth_date" id="birth_date" required="required" oninvalid="setCustomValidity('Invalid Date')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="street">Street</label><br>
+        <input name="street" id="street" type="text" placeholder="Rua dos Lírios, 1" maxlength="32" required="required" oninvalid="setCustomValidity('Invalid street')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="city">City</label><br>
+        <input name="city" id="city" type="text" placeholder="Lisbon" pattern="[A-zÀ-ÿ ]+$" maxlength="32" required="required" oninvalid="setCustomValidity('Invalid city')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="zip">ZIP code</label><br>
+        <input name="zip" id="zip" type="text" placeholder="1234-567" inputmode="numeric" pattern="[0-9-]{8,8}$" maxlength="8" onkeydown="if(this.value.length==4 && event.keyCode!=8) this.value=this.value+'-'" required="required" oninvalid="setCustomValidity('Invalid ZIP code')" oninput="setCustomValidity('')"><br>
+
+        <br><label for="gender">Gender</label><br>
+        <input name="gender" id="male" type="radio" value="Male" checked>
+        <label for="male">Male</label>
+        <input name="gender" id="female" type="radio" value="Female">
+        <label for="female">Female</label><br>
+        <br>
+
+        <label for="phone">Phone Number</label><br>
+        <input name="phone" id="phone" type="text" placeholder="912345678" inputmode="numeric" pattern="[0-9+]{9,}$" maxlength="9" required="required" oninvalid="setCustomValidity('Invalid Phone Number')" oninput="setCustomValidity('')"><br>
+        <br>
+
+        <input type="submit" value="New Client">
+    </form>
+
+    <script>
+
+    </script>
 </body>
 
 </html>

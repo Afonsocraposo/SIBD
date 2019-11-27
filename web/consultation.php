@@ -80,59 +80,133 @@ $dbh = $db->connect();
     $value_VAT = isset($_GET['VAT']) ? $_GET['VAT'] : "";
     $value_timestamp = isset($_GET['timestamp']) ? $_GET['timestamp'] : "";
 
-    $value_add_diagnostic = isset($_POST['add_diagnostic']) ? $_POST['add_diagnostic'] : "";
-    $value_rm_diagnostic = isset($_POST['rm_diagnostic']) ? $_POST['rm_diagnostic'] : "";
-
-    $value_add_medication = isset($_POST['add_medication']) ? $_POST['add_medication'] : "";
-    if (empty($value_add_medication)) {
-        $value_add_medication_name = "";
-        $value_add_medication_lab = "";
-    } else {
-        $pieces = explode(", ", $value_add_medication);
-        $value_add_medication_name = $pieces[0];
-        $value_add_medication_lab = $pieces[1];
-    }
-
-    $value_add_prescription_ID = isset($_POST['add_medication_ID']) ? $_POST['add_medication_ID'] : "";
-    $value_add_dosage = isset($_POST['add_dosage']) ? $_POST['add_dosage'] : "";
-    $value_add_regime = isset($_POST['add_regime']) ? $_POST['add_regime'] : "";
-
-    $value_rm_medication = isset($_POST['rm_medication']) ? $_POST['rm_medication'] : "";
-    if (empty($value_rm_medication)) {
-        $value_rm_medication_name = "";
-        $value_rm_medication_lab = "";
-        $value_rm_medication_ID = "";
-    } else {
-        $pieces = explode(", ", $value_rm_medication);
-        $value_rm_medication_name = $pieces[0];
-        $value_rm_medication_lab = $pieces[1];
-        $value_rm_medication_ID = $pieces[2];
-    }
-
-    $value_add_nurse = isset($_POST['add_nurse']) ? $_POST['add_nurse'] : "";
-    $value_rm_nurse = isset($_POST['rm_nurse']) ? $_POST['rm_nurse'] : "";
-
-    $value_add_procedure_name = isset($_POST['add_procedure_name']) ? $_POST['add_procedure_name'] : "";
-    $value_add_procedure_description = isset($_POST['add_procedure_description']) ? $_POST['add_procedure_description'] : "";
-    $value_rm_procedure = isset($_POST['rm_procedure']) ? $_POST['rm_procedure'] : "";
-
-    $value_save_SOAP_S = isset($_POST['save_SOAP_S']) ? $_POST['save_SOAP_S'] : "";
-    $value_save_SOAP_O = isset($_POST['save_SOAP_O']) ? $_POST['save_SOAP_O'] : "";
-    $value_save_SOAP_A = isset($_POST['save_SOAP_A']) ? $_POST['save_SOAP_A'] : "";
-    $value_save_SOAP_P = isset($_POST['save_SOAP_P']) ? $_POST['save_SOAP_P'] : "";
-
-    $result_consultation;
-    $result_nurse;
-    $result_available_nurses;
-    $result_diagnostic;
-    $result_available_diagnostic;
-    $result_prescription;
-    $result_available_prescription;
-    $result_procedure;
-    $result_available_procedures;
-
-
     if (!empty($value_VAT) && !empty($value_timestamp)) {
+
+        $value_charting = isset($_POST['charting']) ? $_POST['charting'] : "";
+
+        if (!empty($value_charting)) {
+            $quadrants = ['UR', 'UL', 'LR', 'LL'];
+            $quadrantsExt = ['Upper right', 'Upper left', 'Lower right', 'Lower left'];
+
+            $query_tooth_name = "SELECT name FROM teeth WHERE quadrant=? AND number=?";
+            $query_chart_exists = "SELECT COUNT(*) as c FROM procedure_charting WHERE VAT=? AND date_timestamp=? AND quadrant=? AND number=?";
+            $query_tooth_insert = "INSERT INTO procedure_charting (name, VAT, date_timestamp, quadrant, number, description, measure)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $query_tooth_update = "UPDATE procedure_charting
+                                    SET measure=?
+                                    WHERE VAT=?
+                                    AND date_timestamp=?
+                                    AND quadrant=?
+                                    AND number=?";
+
+            for ($q = 0; $q < 4; $q++) {
+                $quadrant = $quadrants[$q];
+                $quadrantExt = $quadrantsExt[$q];
+                for ($number = 1; $number <= 8; $number++) {
+                    $value_tooth = isset($_POST[$quadrant . $number]) ? $_POST[$quadrant . $number] : "";
+                    if (!empty($value_tooth)) {
+                        $stmt = $dbh->prepare($query_tooth_name);
+                        $stmt->bindParam(1, $quadrantExt);
+                        $stmt->bindParam(2, $number);
+                        if (!$stmt->execute()) {
+                            print("Something went wrong when fetching tooth name");
+                        } else {
+                            $result_tooth_name = $stmt->fetch();
+                            if ($result_tooth_name != null) {
+                                $tooth_name = $result_tooth_name["name"];
+
+                                $stmt = $dbh->prepare($query_chart_exists);
+                                $stmt->bindParam(1, $value_VAT);
+                                $stmt->bindParam(2, $value_timestamp);
+                                $stmt->bindParam(3, $quadrantExt);
+                                $stmt->bindParam(4, $number);
+                                if (!$stmt->execute()) {
+                                    print("Something went wrong when fetching tooth name");
+                                } else {
+                                    $result_exists = $stmt->fetch();
+                                    if ($result_exists != null) {
+                                        if ($result_exists["c"] != 0) {
+                                            $stmt = $dbh->prepare($query_tooth_update);
+                                            $stmt->bindParam(1, $value_tooth);
+                                            $stmt->bindParam(2, $value_VAT);
+                                            $stmt->bindParam(3, $value_timestamp);
+                                            $stmt->bindParam(4, $quadrantExt);
+                                            $stmt->bindParam(5, $number);
+                                            if (!$stmt->execute()) {
+                                                print("Something went wrong when updating tooth charting<br>");
+                                            }
+                                        } else {
+                                            $stmt = $dbh->prepare($query_tooth_insert);
+                                            $stmt->bindParam(1, $tooth_name);
+                                            $stmt->bindParam(2, $value_VAT);
+                                            $stmt->bindParam(3, $value_timestamp);
+                                            $stmt->bindParam(4, $quadrantExt);
+                                            $stmt->bindParam(5, $number);
+                                            $stmt->bindParam(6, $descr = " ");
+                                            $stmt->bindParam(7, $value_tooth);
+                                            if (!$stmt->execute()) {
+                                                print("Something went wrong when inserting tooth charting<br>");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $value_add_diagnostic = isset($_POST['add_diagnostic']) ? $_POST['add_diagnostic'] : "";
+        $value_rm_diagnostic = isset($_POST['rm_diagnostic']) ? $_POST['rm_diagnostic'] : "";
+
+        $value_add_medication = isset($_POST['add_medication']) ? $_POST['add_medication'] : "";
+        if (empty($value_add_medication)) {
+            $value_add_medication_name = "";
+            $value_add_medication_lab = "";
+        } else {
+            $pieces = explode(", ", $value_add_medication);
+            $value_add_medication_name = $pieces[0];
+            $value_add_medication_lab = $pieces[1];
+        }
+
+        $value_add_prescription_ID = isset($_POST['add_medication_ID']) ? $_POST['add_medication_ID'] : "";
+        $value_add_dosage = isset($_POST['add_dosage']) ? $_POST['add_dosage'] : "";
+        $value_add_regime = isset($_POST['add_regime']) ? $_POST['add_regime'] : "";
+
+        $value_rm_medication = isset($_POST['rm_medication']) ? $_POST['rm_medication'] : "";
+        if (empty($value_rm_medication)) {
+            $value_rm_medication_name = "";
+            $value_rm_medication_lab = "";
+            $value_rm_medication_ID = "";
+        } else {
+            $pieces = explode(", ", $value_rm_medication);
+            $value_rm_medication_name = $pieces[0];
+            $value_rm_medication_lab = $pieces[1];
+            $value_rm_medication_ID = $pieces[2];
+        }
+
+        $value_add_nurse = isset($_POST['add_nurse']) ? $_POST['add_nurse'] : "";
+        $value_rm_nurse = isset($_POST['rm_nurse']) ? $_POST['rm_nurse'] : "";
+
+        $value_add_procedure_name = isset($_POST['add_procedure_name']) ? $_POST['add_procedure_name'] : "";
+        $value_add_procedure_description = isset($_POST['add_procedure_description']) ? $_POST['add_procedure_description'] : "";
+        $value_rm_procedure = isset($_POST['rm_procedure']) ? $_POST['rm_procedure'] : "";
+
+        $value_save_SOAP_S = isset($_POST['save_SOAP_S']) ? $_POST['save_SOAP_S'] : "";
+        $value_save_SOAP_O = isset($_POST['save_SOAP_O']) ? $_POST['save_SOAP_O'] : "";
+        $value_save_SOAP_A = isset($_POST['save_SOAP_A']) ? $_POST['save_SOAP_A'] : "";
+        $value_save_SOAP_P = isset($_POST['save_SOAP_P']) ? $_POST['save_SOAP_P'] : "";
+
+        $result_consultation = null;
+        $result_nurse = null;
+        $result_available_nurses = null;
+        $result_diagnostic = null;
+        $result_available_diagnostic = null;
+        $result_prescription = null;
+        $result_available_prescription = null;
+        $result_procedure = null;
+        $result_available_procedures = null;
 
         $query_save_SOAP_S = "UPDATE consultation
         SET SOAP_S=?
@@ -639,9 +713,11 @@ $dbh = $db->connect();
         echo "<br><br><h3>Procedure(s)</h3><br><br>";
         if ($result_procedure != null) {
             echo ("<table>\n");
-            echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td><td>&#128465;</td></tr>\n");
+            echo ("<tr class='header'><td>Type</td><td>Name</td><td>Description</td><td></td><td>&#128465;</td></tr>\n");
             foreach ($result_procedure as &$procedure) {
                 echo "<tr><td>" . $procedure['type'] . "</td><td>" . $procedure['name'] . "</td><td>" . $procedure['description'] . "</td>
+                <td> " . (($procedure["type"] == "Dental chartings") ? "<button onclick=\"location.href = '" . $db->url() . "charting.php?VAT=$value_VAT&timestamp=$value_timestamp'\" name='' value=''>&#x1F50D;</button>" : "")
+                    . "</td>
                 <td>
                     <form action='' method='post'>
                         <button name='rm_procedure' value='" . $procedure['name'] . "' style='background:red; color:white'>&#10008;</button>
@@ -666,7 +742,7 @@ $dbh = $db->connect();
         }
         echo "</datalist>
         <button name='' value='' style='background:green; color:white'>&#10010;</button><br><br>
-        <div id='procedure_text'><label for='procedure_description'><h4>Description</h4></label><br><textarea rows='4' id='procedure_description' cols='100' maxlength='255' wrap='hard' name='add_procedure_description' required></textarea></div>
+        <div id='procedure_text' style='visibility:hidden'><label for='procedure_description'><h4>Description</h4></label><br><textarea rows='4' id='procedure_description' cols='100' maxlength='255' wrap='hard' name='add_procedure_description' required></textarea></div>
         </form>";
     }
 
@@ -676,9 +752,9 @@ $dbh = $db->connect();
     <script>
         function checkProcedure() {
             if (document.getElementById("procedure_name").value === "") {
-                document.getElementById("procedure_text").style.display = 'none';
+                document.getElementById("procedure_text").style.visibility = 'hidden';
             } else {
-                document.getElementById("procedure_text").style.display = 'inline';
+                document.getElementById("procedure_text").style.visibility = 'visible';
             }
             return;
         }
