@@ -21,7 +21,7 @@ $dbh = $db->connect();
 			<input type="radio" name="search_type" value="name" id="name"><label for="name"> Name </label>
 			<input type="radio" name="search_type" value="address" id="address"><label for="address"> Address </label>
 		</form>
-		<form action="newClient.php" style="flex: 0 0 20vw; text-align: center">
+		<form action="newClient.php" style="flex: 0 0 20vw; text-align: center;">
 			<input type="submit" value="New Client">
 		</form>
 		<form action='appointments.php' method='post' style="flex: 0 0 20vw;">

@@ -191,7 +191,6 @@ $dbh = $db->connect();
 
     <script>
         function prompt(date, client) {
-            console.log(client);
             document.getElementById("popup").style.display = "block";
             document.getElementById("date").innerHTML = date;
             document.getElementById("add_timestamp").value = date;
@@ -218,7 +217,7 @@ $dbh = $db->connect();
                 <br>
                 <br>
                 <label for="add_description">Description: </label>
-                <textarea rows='4' wrap='hard' name='add_description' id="add_description" required></textarea><br>
+                <textarea maxlength="255" rows='4' wrap='hard' name='add_description' id="add_description" required></textarea><br>
                 <br>
                 <div style="width: 100%; text-align: center">
                     <button name='' value='test'>SUBMIT</button>

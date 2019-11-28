@@ -18,13 +18,45 @@ $dbh = $db->connect();
         tr:hover {
             background: #fff;
         }
+
+        input {
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        #popup {
+            width: 50%;
+            padding: 20px;
+            display: none;
+            position: fixed;
+            background-color: white;
+            text-align: center;
+            margin: auto;
+            border-style: solid;
+            top: 20%;
+            left: 25%;
+            border-width: 1px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        }
     </style>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script>
         function setValues(dic) {
-            console.log(dic);
             for (const [key, value] of Object.entries(dic)) {
                 document.getElementById(key).value = value;
+                if (key.substring(key.length - 4, key.length) == "desc") {
+                    console.log(value);
+                    if (value.length > 0) {
+                        document.getElementById(key + "B").style.background = "#90EE90";
+                    }
+                }
             }
         }
     </script>
@@ -44,13 +76,13 @@ $dbh = $db->connect();
 
     echo "<form id='inputForm' action='consultation.php?VAT=$value_VAT&timestamp=$value_timestamp' method='post'>
         <input name='charting' value='1' style='display:none'>
-        <input type='submit' value='Save'>
+        <button name='' value=''>&#128190;</button>
     </form>";
     ?>
 
     <div style="display: flex">
         <div style="width: 50%">
-            <h3>UR</h3>
+            <h3>Upper Right</h3>
             <table>
                 <tr class='header' style="border-top: 1px solid #ddd;">
                     <td>
@@ -79,19 +111,53 @@ $dbh = $db->connect();
                     </td>
                 </tr>
                 <tr>
-                    <td><input size="4" maxlength="4" id="URtooth8" name="UR8" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth7" name="UR7" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth6" name="UR6" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth5" name="UR5" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth4" name="UR4" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth3" name="UR3" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth2" name="UR2" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="URtooth1" name="UR1" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth8" name="UR8" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth7" name="UR7" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth6" name="UR6" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth5" name="UR5" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth4" name="UR4" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth3" name="UR3" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth2" name="UR2" form="inputForm"></td>
+                    <td><input maxlength="4" id="URtooth1" name="UR1" form="inputForm"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR8desc" id="UR8desc" form="inputForm" value="">
+                        <button id="UR8descB" onclick="popup('UR8desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR7desc" id="UR7desc" form="inputForm" value="">
+                        <button id="UR7descB" onclick="popup('UR7desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR6desc" id="UR6desc" form="inputForm" value="">
+                        <button id="UR6descB" onclick="popup('UR6desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR5desc" id="UR5desc" form="inputForm" value="">
+                        <button id="UR5descB" onclick="popup('UR5desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR4desc" id="UR4desc" form="inputForm" value="">
+                        <button id="UR4descB" onclick="popup('UR4desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR3desc" id="UR3desc" form="inputForm" value="">
+                        <button id="UR3descB" onclick="popup('UR3desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR2desc" id="UR2desc" form="inputForm" value="">
+                        <button id="UR2descB" onclick="popup('UR2desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UR1desc" id="UR1desc" form="inputForm" value="">
+                        <button id="UR1descB" onclick="popup('UR1desc')">+</button>
+                    </td>
                 </tr>
             </table>
         </div>
         <div style="width: 50%">
-            <h3>UL</h3>
+            <h3>Upper Left</h3>
             <table>
                 <tr class='header' style="border-top: 1px solid #ddd;">
                     <td>1</td>
@@ -104,14 +170,48 @@ $dbh = $db->connect();
                     <td>8</td>
                 </tr>
                 <tr>
-                    <td><input size="4" maxlength="4" id="ULtooth1" name="UL1" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth2" name="UL2" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth3" name="UL3" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth4" name="UL4" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth5" name="UL5" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth6" name="UL6" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth7" name="UL7" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="ULtooth8" name="UL8" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth1" name="UL1" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth2" name="UL2" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth3" name="UL3" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth4" name="UL4" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth5" name="UL5" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth6" name="UL6" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth7" name="UL7" form="inputForm"></td>
+                    <td><input maxlength="4" id="ULtooth8" name="UL8" form="inputForm"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL1desc" id="UL1desc" form="inputForm" value="">
+                        <button id="UL1descB" onclick="popup('UL1desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL2desc" id="UL2desc" form="inputForm" value="">
+                        <button id="UL2descB" onclick="popup('UL2desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL3desc" id="UL3desc" form="inputForm" value="">
+                        <button id="UL3descB" onclick="popup('UL3desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL4desc" id="UL4desc" form="inputForm" value="">
+                        <button id="UL4descB" onclick="popup('UL4desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL5desc" id="UL5desc" form="inputForm" value="">
+                        <button id="UL5descB" onclick="popup('UL5desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL6desc" id="UL6desc" form="inputForm" value="">
+                        <button id="UL6descB" onclick="popup('UL6desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL7desc" id="UL7desc" form="inputForm" value="">
+                        <button id="UL7descB" onclick="popup('UL7desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="UL8desc" id="UL8desc" form="inputForm" value="">
+                        <button id="UL8descB" onclick="popup('UL8desc')">+</button>
+                    </td>
                 </tr>
             </table>
         </div>
@@ -132,14 +232,48 @@ $dbh = $db->connect();
         <div style="width: 50%">
             <table>
                 <tr style="border-top: 1px solid #ddd;">
-                    <td><input size="4" maxlength="4" id="LRtooth8" name="LR8" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth7" name="LR7" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth6" name="LR6" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth5" name="LR5" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth4" name="LR4" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth3" name="LR3" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth2" name="LR2" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LRtooth1" name="LR1" form="inputForm"></td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR8desc" id="LR8desc" form="inputForm" value="">
+                        <button id="LR8descB" onclick="popup('LR8desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR7desc" id="LR7desc" form="inputForm" value="">
+                        <button id="LR7descB" onclick="popup('LR7desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR6desc" id="LR6desc" form="inputForm" value="">
+                        <button id="LR6descB" onclick="popup('LR6desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR5desc" id="LR5desc" form="inputForm" value="">
+                        <button id="LR5descB" onclick="popup('LR5desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR4desc" id="LR4desc" form="inputForm" value="">
+                        <button id="LR4descB" onclick="popup('LR4desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR3desc" id="LR3desc" form="inputForm" value="">
+                        <button id="LR3descB" onclick="popup('LR3desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR2desc" id="LR2desc" form="inputForm" value="">
+                        <button id="LR2descB" onclick="popup('LR2desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LR1desc" id="LR1desc" form="inputForm" value="">
+                        <button id="LR1descB" onclick="popup('LR1desc')">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input maxlength="4" id="LRtooth8" name="LR8" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth7" name="LR7" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth6" name="LR6" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth5" name="LR5" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth4" name="LR4" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth3" name="LR3" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth2" name="LR2" form="inputForm"></td>
+                    <td><input maxlength="4" id="LRtooth1" name="LR1" form="inputForm"></td>
                 </tr>
                 <tr class='header'>
                     <td>8</td>
@@ -152,19 +286,53 @@ $dbh = $db->connect();
                     <td>1</td>
                 </tr>
             </table>
-            <h3>LR</h3>
+            <h3>Lower Right</h3>
         </div>
         <div style="width: 50%">
             <table>
                 <tr style="border-top: 1px solid #ddd;">
-                    <td><input size="4" maxlength="4" id="LLtooth1" name="LL1" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth2" name="LL2" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth3" name="LL3" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth4" name="LL4" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth5" name="LL5" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth6" name="LL6" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth7" name="LL7" form="inputForm"></td>
-                    <td><input size="4" maxlength="4" id="LLtooth8" name="LL8" form="inputForm"></td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL1desc" id="LL1desc" form="inputForm" value="">
+                        <button id="LL1descB" onclick="popup('LL1desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL2desc" id="LL2desc" form="inputForm" value="">
+                        <button id="LL2descB" onclick="popup('LL2desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL3desc" id="LL3desc" form="inputForm" value="">
+                        <button id="LL3descB" onclick="popup('LL3desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL4desc" id="LL4desc" form="inputForm" value="">
+                        <button id="LL4descB" onclick="popup('LL4desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL5desc" id="LL5desc" form="inputForm" value="">
+                        <button id="LL5descB" onclick="popup('LL5desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL6desc" id="LL6desc" form="inputForm" value="">
+                        <button id="LL6descB" onclick="popup('LL6desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL7desc" id="LL7desc" form="inputForm" value="">
+                        <button id="LL7descB" onclick="popup('LL7desc')">+</button>
+                    </td>
+                    <td>
+                        <input style="display:none" maxlength="255" name="LL8desc" id="LL8desc" form="inputForm" value="">
+                        <button id="LL8descB" onclick="popup('LL8desc')">+</button>
+                    </td>
+                </tr>
+                <tr style="border-top: 1px solid #ddd;">
+                    <td><input maxlength="4" id="LLtooth1" name="LL1" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth2" name="LL2" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth3" name="LL3" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth4" name="LL4" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth5" name="LL5" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth6" name="LL6" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth7" name="LL7" form="inputForm"></td>
+                    <td><input maxlength="4" id="LLtooth8" name="LL8" form="inputForm"></td>
                 </tr>
                 <tr class='header'>
                     <td>1</td>
@@ -177,7 +345,7 @@ $dbh = $db->connect();
                     <td>8</td>
                 </tr>
             </table>
-            <h3>LL</h3>
+            <h3>Lower Left</h3>
         </div>
     </div>
 
@@ -205,26 +373,28 @@ $dbh = $db->connect();
                     foreach ($result_charting as &$chart) {
                         switch ($chart['quadrant']) {
                             case 'Lower right':
-                                $dic = $dic . "'LR";
+                                $quadrant = "'LR";
                                 break;
                             case 'Lower left':
-                                $dic = $dic . "'LL";
+                                $quadrant = "'LL";
                                 break;
                             case 'Upper right':
-                                $dic = $dic . "'UR";
+                                $quadrant = "'UR";
                                 break;
                             case 'Upper left':
-                                $dic = $dic . "'UL";
+                                $quadrant = "'UL";
                                 break;
                             default:
+                                $quadrant = "'";
                                 break;
                         }
-                        $dic = $dic . "tooth" . $chart["number"] . "': " . $chart["measure"] . ", ";
+                        $dic = $dic . $quadrant . "tooth" . $chart["number"] . "': " . $chart["measure"] . ", ";
+                        $dic = $dic . $quadrant . $chart["number"] . "desc': '" . $chart["description"] . "', ";
                     }
                     $dic = $dic . "}";
                     echo "<script>
-        setValues($dic);
-    </script>";
+                            setValues($dic);
+                        </script>";
                 }
             }
         }
@@ -234,6 +404,19 @@ $dbh = $db->connect();
     </script>";
     }
     ?>
+
+        <div id="popup">
+            <div style="float:right"><button onclick="document.getElementById('popup').style.display = 'none';">X</button></div><br><br>
+            <div>
+                <h2 id="tooth"></h2>
+                <label for="add_description">Description: </label>
+                <textarea maxlength="255" wrap='hard' name='add_description' id="add_description"></textarea><br>
+                <br>
+                <div style="width: 100%; text-align: center">
+                    <button id="saveDescr" value='test'>SUBMIT</button>
+                </div>
+            </div>
+        </div>
 
         <script>
             function quadrant(quadrant) {
@@ -320,7 +503,7 @@ $dbh = $db->connect();
                 var tooth2 = new Image();
                 tooth2.onload = function() {
                     var image = new Konva.Image({
-                        x: 90,
+                        x: 90 * scale,
                         y: this.height / 2 + 15,
                         image: tooth2,
                         offsetX: this.width / 2,
@@ -450,6 +633,25 @@ $dbh = $db->connect();
                 };
                 tooth8.src = 'http://web.tecnico.ulisboa.pt/ist425108/SIBD/images/teeth/tooth8.png';
 
+            }
+
+            function popup(id) {
+                document.getElementById("popup").style.display = "block";
+                document.getElementById("tooth").innerHTML = id.substring(0, 3);
+                console.log(id)
+                document.getElementById("add_description").value = document.getElementById(id).value;
+                var old_element = document.getElementById("saveDescr");
+                var new_element = old_element.cloneNode(true);
+                old_element.parentNode.replaceChild(new_element, old_element);
+                document.getElementById("saveDescr").addEventListener("click", function() {
+                    if (document.getElementById("add_description").value.length > 0) {
+                        document.getElementById(id + "B").style.background = "#90EE90";
+                    } else {
+                        document.getElementById(id + "B").style.background = "white";
+                    }
+                    document.getElementById(id).value = document.getElementById("add_description").value;
+                    document.getElementById('popup').style.display = 'none';
+                }, false);
             }
 
             quadrant("LL");
