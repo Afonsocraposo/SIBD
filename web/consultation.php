@@ -88,7 +88,6 @@ $dbh = $db->connect();
             $quadrants = ['UR', 'UL', 'LR', 'LL'];
             $quadrantsExt = ['Upper right', 'Upper left', 'Lower right', 'Lower left'];
 
-            $query_tooth_name = "SELECT name FROM teeth WHERE quadrant=? AND number=?";
             $query_chart_exists = "SELECT COUNT(*) as c FROM procedure_charting WHERE VAT=? AND date_timestamp=? AND quadrant=? AND number=?";
             $query_tooth_insert = "INSERT INTO procedure_charting (name, VAT, date_timestamp, quadrant, number, description, measure)
                                     VALUES ('Periodontal charting', ?, ?, ?, ?, ?, ?)";
@@ -295,7 +294,8 @@ $dbh = $db->connect();
         $query_prescription = "SELECT *
         FROM prescription
         WHERE VAT_doctor = ?
-        AND date_timestamp = ?";
+        AND date_timestamp = ?
+        ORDER BY name ASC";
 
         $query_procedure = "SELECT *
         FROM procedure_

@@ -59,7 +59,7 @@ $dbh = $db->connect();
         }
     }
 
-    $query_clients = "SELECT name, VAT FROM client";
+    $query_clients = "SELECT name, VAT FROM client ORDER BY name ASC";
     $stmt = $dbh->prepare($query_clients);
     if (!$stmt->execute()) {
         print("Something went wrong when fetching available doctors");
@@ -83,7 +83,8 @@ $dbh = $db->connect();
     FROM appointment 
     INNER JOIN employee 
     ON appointment.VAT_doctor = employee.VAT
-    WHERE appointment.date_timestamp LIKE CONCAT(?,' ',?,':%'))";
+    WHERE appointment.date_timestamp LIKE CONCAT(?,' ',?,':%'))
+    ORDER BY employee.name ASC";
     $stmt = $dbh->prepare($query_available_doctors);
     for ($i = 9; $i < 17; $i++) {
         $h = sprintf("%'.02d", $i);
