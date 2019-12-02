@@ -175,7 +175,7 @@ class Calendar
         if ($cellContent == null) {
             $color = "rgb(255,255,255)";
         } else {
-            if (strtotime($this->actualDate) <= strtotime($this->currentDate)) {
+            if (((strtotime($this->actualDate) == strtotime($this->currentDate)) && (intval(date('H', time())) < 16)) || (strtotime($this->actualDate) < strtotime($this->currentDate))) {
                 $color = "rgba(0,255,0,$opacity)";
             } else {
                 $color = "rgba(150,150,150,$opacity)";
