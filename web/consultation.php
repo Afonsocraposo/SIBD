@@ -98,51 +98,58 @@ $dbh = $db->connect();
                                     AND date_timestamp=?
                                     AND quadrant=?
                                     AND number=?";
-            for ($q = 0; $q < 4; $q++) {
-                $quadrant = $quadrants[$q];
-                $quadrantExt = $quadrantsExt[$q];
-                for ($number = 1; $number <= 8; $number++) {
-                    $value_tooth = isset($_POST[$quadrant . $number]) ? $_POST[$quadrant . $number] : "";
-                    $value_tooth_desc = isset($_POST[$quadrant . $number . "desc"]) ? $_POST[$quadrant . $number . "desc"] : "";
-                    if (!empty($value_tooth) || !empty($value_tooth_desc)) {
 
-                        $stmt = $dbh->prepare($query_chart_exists);
-                        $stmt->bindParam(1, $value_VAT);
-                        $stmt->bindParam(2, $value_timestamp);
-                        $stmt->bindParam(3, $quadrantExt);
-                        $stmt->bindParam(4, $number);
-                        if (!$stmt->execute()) {
-                            print("Something went wrong when fetching tooth name");
-                        } else {
-                            $result_exists = $stmt->fetch();
-                            if ($result_exists != null) {
-                                if ($result_exists["c"] != 0) {
-                                    $stmt = $dbh->prepare($query_tooth_update);
-                                    $stmt->bindParam(1, $value_tooth_desc);
-                                    $stmt->bindParam(2, $value_tooth);
-                                    $stmt->bindParam(3, $value_VAT);
-                                    $stmt->bindParam(4, $value_timestamp);
-                                    $stmt->bindParam(5, $quadrantExt);
-                                    $stmt->bindParam(6, $number);
-                                    if (!$stmt->execute()) {
-                                        print("Something went wrong when updating tooth charting<br>");
-                                    }
-                                } else {
-                                    $stmt = $dbh->prepare($query_tooth_insert);
-                                    $stmt->bindParam(1, $value_VAT);
-                                    $stmt->bindParam(2, $value_timestamp);
-                                    $stmt->bindParam(3, $quadrantExt);
-                                    $stmt->bindParam(4, $number);
-                                    $stmt->bindParam(5, $value_tooth_desc);
-                                    $stmt->bindParam(6, $value_tooth);
-                                    if (!$stmt->execute()) {
-                                        print("Something went wrong when inserting tooth charting<br>");
+            try {
+                $dbh->beginTransaction();
+                for ($q = 0; $q < 4; $q++) {
+                    $quadrant = $quadrants[$q];
+                    $quadrantExt = $quadrantsExt[$q];
+                    for ($number = 1; $number <= 8; $number++) {
+                        $value_tooth = isset($_POST[$quadrant . $number]) ? $_POST[$quadrant . $number] : "";
+                        $value_tooth_desc = isset($_POST[$quadrant . $number . "desc"]) ? $_POST[$quadrant . $number . "desc"] : "";
+                        if (!empty($value_tooth) || !empty($value_tooth_desc)) {
+
+                            $stmt = $dbh->prepare($query_chart_exists);
+                            $stmt->bindParam(1, $value_VAT);
+                            $stmt->bindParam(2, $value_timestamp);
+                            $stmt->bindParam(3, $quadrantExt);
+                            $stmt->bindParam(4, $number);
+                            if (!$stmt->execute()) {
+                                print("Something went wrong when fetching tooth name");
+                            } else {
+                                $result_exists = $stmt->fetch();
+                                if ($result_exists != null) {
+                                    if ($result_exists["c"] != 0) {
+                                        $stmt = $dbh->prepare($query_tooth_update);
+                                        $stmt->bindParam(1, $value_tooth_desc);
+                                        $stmt->bindParam(2, $value_tooth);
+                                        $stmt->bindParam(3, $value_VAT);
+                                        $stmt->bindParam(4, $value_timestamp);
+                                        $stmt->bindParam(5, $quadrantExt);
+                                        $stmt->bindParam(6, $number);
+                                        if (!$stmt->execute()) {
+                                            print("Something went wrong when updating tooth charting<br>");
+                                        }
+                                    } else {
+                                        $stmt = $dbh->prepare($query_tooth_insert);
+                                        $stmt->bindParam(1, $value_VAT);
+                                        $stmt->bindParam(2, $value_timestamp);
+                                        $stmt->bindParam(3, $quadrantExt);
+                                        $stmt->bindParam(4, $number);
+                                        $stmt->bindParam(5, $value_tooth_desc);
+                                        $stmt->bindParam(6, $value_tooth);
+                                        if (!$stmt->execute()) {
+                                            print("Something went wrong when inserting tooth charting<br>");
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                $dbh->commit();
+            } catch (Exception $e) {
+                echo "Error:  " . $e;
             }
         }
 
