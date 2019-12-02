@@ -8,7 +8,7 @@ $dbh = $db->connect();
 <head>
     <script src="https://unpkg.com/konva@4.0.18/konva.min.js"></script>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>SIBD</title>
+    <title>Charting</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -659,6 +659,9 @@ $dbh = $db->connect();
             quadrant("UL");
             quadrant("UR");
         </script>
+        <div style="left:0;width:100%;height:20px;position:fixed;z-index:99;bottom:0;text-align:center">
+            <span style="background:rgba(150,150,150,0.5)">SIBD - Project Part 3 - Group 50</span>
+        </div>
 </body>
 
 </html>

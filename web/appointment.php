@@ -7,7 +7,7 @@ $dbh = $db->connect();
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>SIBD</title>
+    <title>Appointments - Day</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link href="calendar.css" type="text/css" rel="stylesheet" />
     <style>
@@ -226,7 +226,9 @@ $dbh = $db->connect();
             </form>
         </div>
     </div>
-
+    <div style="left:0;width:100%;height:20px;position:fixed;z-index:99;bottom:0;text-align:center">
+        <span style="background:rgba(150,150,150,0.5)">SIBD - Project Part 3 - Group 50</span>
+    </div>
 </body>
 
 </html>
