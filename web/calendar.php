@@ -55,7 +55,7 @@ class Calendar
         } else {
             if ($stmt->rowCount() > 0) {
                 $doctors = $stmt->fetch();
-                $this->number = intval($doctors["c"]);
+                $this->number = 8 * intval($doctors["c"]);
             }
         }
 

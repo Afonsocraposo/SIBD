@@ -52,7 +52,6 @@ $dbh = $db->connect();
             for (const [key, value] of Object.entries(dic)) {
                 document.getElementById(key).value = value;
                 if (key.substring(key.length - 4, key.length) == "desc") {
-                    console.log(value);
                     if (value.length > 0) {
                         document.getElementById(key + "B").style.background = "#90EE90";
                     }
